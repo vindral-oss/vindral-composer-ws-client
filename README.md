@@ -20,6 +20,9 @@ For Composer Desktop, make the necessary changes in the `Settings` -> `Web API` 
 
 <img width="1382" height="893" alt="2025-10-13_1382x893_scrot" src="https://github.com/user-attachments/assets/03fcf71d-4b24-4f83-a353-fca1e61c8ffe" />
 
+# Assets
+Included are two optional files; a Vindral Composer project and associated audio file to get started. Place these in the Composer subfolders `/Projects` and `/Media/Audio` as detailed in the Composer manual.
+
 # What this example application does
 > [!NOTE]
 > This is just an early example of the initial feature set of the Composer WebSocket API. More features will be added later.
