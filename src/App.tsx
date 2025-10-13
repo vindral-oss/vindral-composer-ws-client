@@ -150,9 +150,8 @@ export default function App() {
   return (
     <Paper elevation={3} className="min-h-[100vh] h-[100vh] overflow-scroll">
       <Grid container spacing={2}>
-        <Grid
-          size={3}
-          sx={{ boxShadow: "2px 0 16px -2px #888" }}
+        <div
+          style={{ boxShadow: "2px 0 16px -2px #888" }}
           className="fixed w-[680px] max-w-[680px] bottom-0 top-0  bg-white z-20  p-4"
         >
           <div className="flex-1">
@@ -197,8 +196,8 @@ export default function App() {
               lastMessage={lastMessage}
             />
           </div>
-        </Grid>
-        <Grid size={9} className="p-4 ml-[650px]">
+        </div>
+        <Grid size={9} className="p-4 ml-[678px]">
           <h2 className="mt-2 mb-2 ml-4 text-3xl">Audio strips</h2>
           <Stack
             direction="row"
