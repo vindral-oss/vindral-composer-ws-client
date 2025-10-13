@@ -215,11 +215,14 @@ export default function App() {
                 </React.Fragment>
               ))
             ) : (
-              <React.Fragment>
+              <div className="ml-4">
                 {readyState === ReadyState.CLOSED && (
-                  <div>Not connected to Composer.</div>
+                  <div className="ml-4">Not connected to Composer.</div>
                 )}
-              </React.Fragment>
+                {readyState === ReadyState.CONNECTING && (
+                  <div className="ml-4">Connecting to Composer.</div>
+                )}
+              </div>
             )}
           </Stack>
         </Grid>
