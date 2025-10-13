@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.blink_me {
+  animation: blinker 1s linear infinite;
+  animation-iteration-count: 3;
+}
+
+@keyframes blinker {
+  0% {
+    background: white;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    background: red;
+  }
+}
