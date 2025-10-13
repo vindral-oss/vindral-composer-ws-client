@@ -25,14 +25,9 @@ For Composer Desktop, make the necessary changes in the `Settings` -> `Web API` 
 > This is just an early example of the initial feature set of the Composer WebSocket API. More features will be added later.
 
 ## Startup
-1) It will connect to the specified `Websocket URL`
-2) It will automatically subscribe to `AudioMixer` events (the only events available, as of today).
-3) It will automatically extract each available `Audio Strip` and its;
-  3.1) Name
-  3.2) ID
-  3.3) Properties
-
-<img width="1914" height="1279" alt="2025-10-13_1914x1279_scrot" src="https://github.com/user-attachments/assets/4b79e1cc-7228-4aac-ab8c-63339e352a20" />
+* It will connect to the specified `Websocket URL`
+* It will automatically subscribe to `AudioMixer` events (the only events available, as of today).
+* It will automatically extract each available `Audio Strip` and its properties
 
 ## Left drawer
 The left drawer allows the user to change;
@@ -42,13 +37,16 @@ The left drawer allows the user to change;
 * Set a message history `Limit`
 * Send messages
 
-### Sending messages
-Sending messages can be done by either manually constructing the message by selecting the appropriate `Audio Strip` and `Property` and proving a new `Value`:
+## Sending messages
+There are two ways to send messages;
 
-<img width="621" height="278" alt="2025-10-13_621x278_scrot" src="https://github.com/user-attachments/assets/aac8b66e-4e11-4c37-b27f-6ac696968fcd" />
+### Manually constructing the message object
+Messages can be constructred by selecting any available `Audio Strip` and `Property` from the dropdowns and proving a new `Value`.
 
-Or by selecting (clicking) on any *Writeable* property's *Name* in either `Audio Strip` table.
+### Click any writeable property Name
+Click on any *Writeable* property's *Name* in either `Audio Strip` table to pre-populate the dropdowns. Then supply a value.
 
+### Message format
 The `Update property value` message format is:
 
 ```
