@@ -14,7 +14,7 @@ code {
     monospace;
 }
 
-.blink_me {
+.blink {
   animation: blinker 1s linear infinite;
   animation-iteration-count: 3;
 }
