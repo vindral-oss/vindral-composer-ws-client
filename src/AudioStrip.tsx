@@ -3,9 +3,10 @@ import TableContainer from "@mui/material/TableContainer";
 import Table from "@mui/material/Table";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import TableCell from "@mui/material/TableCell";
+import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableBody from "@mui/material/TableBody";
 import type { ComposerAudioObject, UniqueSelection } from "./App";
+import { styled } from "@mui/material/styles";
 
 export interface AudioStripProps {
   audioObject: ComposerAudioObject;
@@ -13,74 +14,95 @@ export interface AudioStripProps {
   lastUpdateProperty?: UniqueSelection;
 }
 
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: theme.palette.common.black,
+    color: theme.palette.common.white,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14,
+  },
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  "": {
+    backgroundColor: theme.palette.action.hover,
+  },
+  // hide last border
+  "&:last-child td, &:last-child th": {
+    border: 0,
+  },
+}));
+
 export const AudioStrip = ({
   audioObject,
   setCurrentSelectionFn,
   lastUpdateProperty,
 }: AudioStripProps) => (
-  <Paper elevation={3} className="p-4">
-    <h1 className="text-2xl">Name: {audioObject.Name}</h1>
-    <h1 className="text-xl">ID: {audioObject.Id}</h1>
-    <h1 className="mt-8">Properties</h1>
+  <div className="p-4">
+    <h1 className="text-xl">{audioObject.Name}</h1>
+    <h1>{audioObject.Id}</h1>
     <TableContainer component={Paper} className="mt-2">
       <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
         <TableHead>
           <TableRow>
-            <TableCell className="font-extrabold">Name</TableCell>
-            <TableCell align="right">Type</TableCell>
-            <TableCell align="right">Value</TableCell>
-            <TableCell align="right">CanWrite</TableCell>
-            <TableCell align="right">ValueEnum</TableCell>
-            <TableCell align="right">Description</TableCell>
+            <StyledTableCell>Name</StyledTableCell>
+            {/* <StyledTableCell align="right">Type</StyledTableCell> */}
+            <StyledTableCell align="right">Value</StyledTableCell>
+            <StyledTableCell align="right">Writeable</StyledTableCell>
+            {/* <StyledTableCell align="right">ValueEnum</StyledTableCell> */}
+            <StyledTableCell align="right">Description</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {audioObject.Properties.map((property) => (
-            <TableRow
+            <StyledTableRow
+              className="even:bg-gray-50 odd:bg-gray-200 hover:bg-gray-300"
               key={property.PropertyName}
               sx={{
                 "&:last-child td, &:last-child th": { border: 0 },
               }}
             >
-              <TableCell
+              <StyledTableCell
                 onClick={(e) =>
                   property.CanWrite &&
                   setCurrentSelectionFn({
-                    Id: audioObject.Id,
-                    Property: (e.target as HTMLTableRowElement).innerText,
+                    AudioStripName: audioObject.Name,
+                    PropertyId: audioObject.Id,
+                    PropertyName: (e.target as HTMLTableRowElement).innerText,
                   })
                 }
                 className={`${
-                  property.CanWrite
-                    ? "cursor-pointer hover:bg-gray-300"
-                    : "cursor-not-allowed"
+                  property.CanWrite ? "cursor-pointer" : "cursor-not-allowed"
                 }`}
                 component="th"
                 scope="row"
               >
                 {property.PropertyName}
-              </TableCell>
-              <TableCell align="right">{property.PropertyType}</TableCell>
-              <TableCell
+              </StyledTableCell>
+              {/* <TableCell align="right">{property.PropertyType}</TableCell> */}
+              <StyledTableCell
                 className={`${
-                  lastUpdateProperty?.Property === property.PropertyName &&
-                  lastUpdateProperty?.Id === audioObject.Id
+                  lastUpdateProperty?.PropertyName === property.PropertyName &&
+                  lastUpdateProperty?.PropertyId === audioObject.Id
                     ? "blink"
                     : "white"
                 }`}
                 align="right"
               >
                 {String(property.Value)}
-              </TableCell>
-              <TableCell align="right">{String(property.CanWrite)}</TableCell>
-              <TableCell align="right">{property.ValueEnum}</TableCell>
-              <TableCell align="right">
+              </StyledTableCell>
+              <StyledTableCell align="right">
+                {String(property.CanWrite)}
+              </StyledTableCell>
+              {/* <TableCell align="right">{property.ValueEnum}</TableCell> */}
+              <StyledTableCell align="right">
                 {property.PropertyDescription}
-              </TableCell>
-            </TableRow>
+              </StyledTableCell>
+            </StyledTableRow>
           ))}
         </TableBody>
       </Table>
     </TableContainer>
-  </Paper>
+  </div>
 );

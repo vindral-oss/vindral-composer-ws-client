@@ -1,13 +1,50 @@
 import Box from "@mui/material/Box";
 
 export interface WebsocketMessageProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   message: MessageEvent<any>;
+  prettyPrint: boolean;
 }
 
-export const WebsocketMessage = ({ message }: WebsocketMessageProps) => (
-  <Box component="section" className="text-wrap break-words">
-    <div className="bg-gray-100">
-      <div className="mb-2">{message ? message.data : null}</div>
-    </div>
-  </Box>
-);
+export const WebsocketMessage = ({
+  message,
+  prettyPrint,
+}: WebsocketMessageProps) => {
+  let content = "";
+  let json;
+  if (message.data) {
+    json = JSON.parse(message.data);
+    if (json.Content) {
+      if ((json.Content as string).includes("{")) {
+        content = json.Content;
+        content = json.Content.replaceAll(/\n/g, "");
+        content = content.replaceAll(/\\"/g, "");
+        content = JSON.parse(content);
+      } else {
+        content = json.Content;
+      }
+    }
+  }
+
+  const prettyContent = JSON.stringify(content, null, 2);
+  const rawJson = JSON.parse(message.data);
+  const prettyTime = new Date(rawJson.DateTime).toUTCString();
+  const type = rawJson.Type;
+
+  return (
+    <Box
+      component="section"
+      className={`text-wrap p-2 break-words ${
+        type === "Error" ? "bg-red-500" : "bg-white"
+      }`}
+    >
+      {prettyPrint && (
+        <div className={`flex font-bold mb-4`}>
+          <div className="font-bold mr-auto">{rawJson.Type}</div>
+          <div className="justify-end">{prettyTime}</div>
+        </div>
+      )}
+      <pre className="mb-2 ">{prettyPrint ? prettyContent : message.data}</pre>
+    </Box>
+  );
+};

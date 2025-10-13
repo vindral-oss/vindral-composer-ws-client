@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import useWebSocket from "react-use-websocket";
+import useWebSocket, { ReadyState } from "react-use-websocket";
 import { ConnectionInfo } from "./ConnectionInfo";
 import { MessageHistory } from "./MessageHistory";
 import Grid from "@mui/material/Grid";
@@ -9,6 +9,9 @@ import Alert from "@mui/material/Alert";
 import React from "react";
 import { SendMessage } from "./SendMessage";
 import { AudioStrip } from "./AudioStrip";
+import Stack from "@mui/material/Stack";
+import Divider from "@mui/material/Divider";
+import Paper from "@mui/material/Paper";
 
 interface Message {
   Type: string;
@@ -18,7 +21,7 @@ interface Message {
 interface ContentString {
   ObjectId: string;
   PropertyName: string;
-  Value: string | number | boolean;
+  Value: string | number;
 }
 
 export interface ComposerAudioObject {
@@ -45,22 +48,19 @@ const subscribeMessage: Message = {
 };
 
 export interface UniqueSelection {
-  Id: string;
-  Property: string;
+  AudioStripName: string;
+  PropertyId: string;
+  PropertyName: string;
 }
 
-const extractAudioStrips = (response: any): ComposerAudioObject[] => {
-  const parsedContent = JSON.parse(response);
+const extractAudioStrips = (response: unknown): ComposerAudioObject[] => {
+  const parsedContent = JSON.parse(response as string);
   const content = JSON.parse(parsedContent.Content);
-  var dataArray = Object.keys(content).map(function (k) {
-    return content[k];
-  });
-
-  return dataArray[0];
+  return Object.keys(content).map((k) => content[k])[0];
 };
 
 const updatePropertyValue = (
-  content: any,
+  content: ContentString,
   audioStrips?: ComposerAudioObject[]
 ): ComposerAudioObject[] => {
   const updatedAudioStrips =
@@ -115,8 +115,9 @@ export default function App() {
         const message = JSON.parse(parsedJson.Content);
         const updatedAudioStrips = updatePropertyValue(message, audioStrips);
         setLastUpdateProperty({
-          Id: message.ObjectId,
-          Property: message.PropertyName,
+          AudioStripName: parsedJson.Name,
+          PropertyId: message.ObjectId,
+          PropertyName: message.PropertyName,
         });
         setAudioStrips(updatedAudioStrips);
       }
@@ -137,12 +138,7 @@ export default function App() {
   }, [lastMessage]);
 
   const handleClickChangeSocketUrl = useCallback((url: string) => {
-    console.log("Yo this happens once!");
     if (WS_URL_REGEX.test(url)) {
-      if (url === socketUrl) {
-        return;
-      }
-
       setErrorText("");
       setSocketUrl(url);
     } else {
@@ -152,15 +148,21 @@ export default function App() {
   }, []);
 
   return (
-    <div className="p-4 h-[100vh] overflow-scroll">
+    <Paper elevation={3} className="min-h-[100vh] h-[100vh] overflow-scroll">
       <Grid container spacing={2}>
-        <Grid size={3}>
-          <div className="flex-1 min-h-[15vh]">
+        <Grid
+          size={3}
+          sx={{ boxShadow: "2px 0 16px -2px #888" }}
+          className="fixed w-[680px] max-w-[680px] bottom-0 top-0  bg-white z-20  p-4"
+        >
+          <div className="flex-1">
             <h1 className="text-3xl mb-4">Connection</h1>
             <div className="flex gap-x-4">
               <TextField
+                fullWidth
                 id="wsUrl"
                 label="Websocket URL"
+                size="small"
                 variant="outlined"
                 onChange={(e) => setInputWsUrl(e.target.value)}
                 value={inputWsUrl}
@@ -169,9 +171,10 @@ export default function App() {
               <Button
                 variant="outlined"
                 name="setWsUrl"
+                size="small"
                 onClick={() => handleClickChangeSocketUrl(inputWsUrl)}
               >
-                Set url
+                Set
               </Button>
             </div>
             {errorText !== "" && (
@@ -182,9 +185,11 @@ export default function App() {
             <ConnectionInfo status={readyState} url={socketUrl} />
           </div>
           <SendMessage
-            id={currentSelection?.Id}
-            property={currentSelection?.Property}
+            clickSelectedAudioStrip={currentSelection?.AudioStripName}
+            clickSelectedId={currentSelection?.PropertyId}
+            clickSelectedProperty={currentSelection?.PropertyName}
             sendMessageFn={sendMessage}
+            audioStrips={audioStrips || []}
           />
           <div className="h-auto">
             <MessageHistory
@@ -193,20 +198,33 @@ export default function App() {
             />
           </div>
         </Grid>
-        <Grid size={9}>
-          <div className="h-full w-full flex gap-x-4">
-            {audioStrips?.map((audioObject) => (
-              <React.Fragment key={audioObject.Id}>
-                <AudioStrip
-                  audioObject={audioObject}
-                  lastUpdateProperty={lastUpdateProperty}
-                  setCurrentSelectionFn={setCurrentSelection}
-                />
+        <Grid size={9} className="p-4 ml-[650px]">
+          <h2 className="mt-2 mb-2 ml-4 text-3xl">Audio strips</h2>
+          <Stack
+            direction="row"
+            divider={<Divider orientation="vertical" flexItem />}
+            spacing={2}
+          >
+            {audioStrips && audioStrips.length > 0 ? (
+              audioStrips?.map((audioObject) => (
+                <React.Fragment key={audioObject.Id}>
+                  <AudioStrip
+                    audioObject={audioObject}
+                    lastUpdateProperty={lastUpdateProperty}
+                    setCurrentSelectionFn={setCurrentSelection}
+                  />
+                </React.Fragment>
+              ))
+            ) : (
+              <React.Fragment>
+                {readyState === ReadyState.CLOSED && (
+                  <div>Not connected to Composer.</div>
+                )}
               </React.Fragment>
-            ))}
-          </div>
+            )}
+          </Stack>
         </Grid>
       </Grid>
-    </div>
+    </Paper>
   );
 }
