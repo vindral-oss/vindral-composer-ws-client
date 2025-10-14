@@ -20,7 +20,6 @@ export interface SendMessageProps {
 export function SendMessage({
   audioStrips,
   clickSelectedAudioStrip,
-  clickSelectedId,
   clickSelectedProperty,
   sendMessageFn,
 }: SendMessageProps) {
