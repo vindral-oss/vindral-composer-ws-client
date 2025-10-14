@@ -29,14 +29,14 @@ export interface ComposerAudioObject {
   SelectedProperty?: string;
 }
 
-interface ComposerProperty {
+export type ComposerProperty = {
   PropertyDescription: string;
   PropertyName: string;
   PropertyType: string;
   CanWrite: boolean;
   Value: number | string;
   ValueEnum?: "string";
-}
+};
 
 const subscribeMessage: Message = {
   Type: "Subscribe",
@@ -165,7 +165,7 @@ export default function App() {
                   name="setWsUrl"
                   size="small"
                   onClick={() => handleClickChangeSocketUrl(inputWsUrl)}
-                  className="h-10 !bg-[#FDBF79] !text-white font-bold !border-none hover:!bg-[#fda94d]"
+                  className="bg-[#FDBF79] text-black font-bold border-none hover:bg-[#fda94d]"
                 >
                   Set
                 </Button>
