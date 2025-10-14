@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
-import { ConnectionInfo } from "./ConnectionInfo";
 import { MessageHistory } from "./MessageHistory";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -169,9 +168,6 @@ export default function App() {
                 >
                   Set
                 </Button>
-              </div>
-              <div className="flex">
-                <ConnectionInfo status={readyState} url={socketUrl} />
               </div>
             </div>
             {errorText !== "" && (

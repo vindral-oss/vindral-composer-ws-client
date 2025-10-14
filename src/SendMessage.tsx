@@ -72,15 +72,20 @@ export function SendMessage({
 
   return (
     <Box component="section" className="mb-8">
+      <h2 className="text-base font-bold mb-3">Send message</h2>
+
       <div className="grid grid-cols-2 gap-4 items-start">
         {/* Left column: controls */}
         <div>
-          <h2 className="text-base font-bold mb-3">Send message</h2>
-          <div className="mb-4 text-xs">
+          <div className="mb-4">
             Construct your message, or click any writeable property in the
             table(s)
           </div>
-          <FormControl sx={{ padding: "6px 0" }} fullWidth className="text-xs">
+          <FormControl
+            sx={{ padding: "6px 0", margin: "" }}
+            fullWidth
+            className="text-xs"
+          >
             <InputLabel id="audio-strip-label" className="text-xs">
               Audio strip
             </InputLabel>
@@ -148,21 +153,22 @@ export function SendMessage({
             />
           </div>
         </div>
-        {/* Right column: content preview */}
-        <div className="relative">
+        {/* Right column: content preview + button */}
+        <div className="relative flex flex-col pt-1 h-full">
           <Fab
             onClick={() => {
               navigator.clipboard.writeText(messagePreview);
             }}
-            className="!absolute -top-4 -right-0 m-2"
+            className="!absolute top-2 right-2 z-10"
             color="primary"
+            sx={{ opacity: 0.5, ":hover": { opacity: 0.9 } }}
             aria-label="Copy JSON"
             size="small"
           >
             <ContentCopyIcon fontSize="small" />
           </Fab>
           <pre
-            className="bg-gray-100 rounded p-4 mr-1 text-xs h-48 overflow-auto mb-4 relative"
+            className="bg-gray-100 rounded p-4 mr-1 min-h-[168px] text-xs overflow-auto mb-4 relative"
             id="message-content-preview"
           >
             {messagePreview}
