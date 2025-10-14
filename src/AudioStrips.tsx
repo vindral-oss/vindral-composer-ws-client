@@ -27,21 +27,22 @@ function shallowEqual(objA: ComposerAudioObject, objB: ComposerAudioObject) {
   return true;
 }
 
-const MemoizedAudioStrip = React.memo(
-  AudioStrip,
-  (prevProps, nextProps) => shallowEqual(prevProps.audioObject, nextProps.audioObject)
+const MemoizedAudioStrip = React.memo(AudioStrip, (prevProps, nextProps) =>
+  shallowEqual(prevProps.audioObject, nextProps.audioObject)
 );
 
-export const AudioStrips: React.FC<AudioStripsProps> = React.memo(({ audioStrips, setCurrentSelectionFn }) => {
-  return (
-    <>
-      {audioStrips.map(audioObject => (
-        <MemoizedAudioStrip
-          key={audioObject.Id}
-          audioObject={audioObject}
-          setCurrentSelectionFn={setCurrentSelectionFn}
-        />
-      ))}
-    </>
-  );
-});
+export const AudioStrips: React.FC<AudioStripsProps> = React.memo(
+  ({ audioStrips, setCurrentSelectionFn }) => {
+    return (
+      <>
+        {audioStrips.map((audioObject) => (
+          <MemoizedAudioStrip
+            key={audioObject.Id}
+            audioObject={audioObject}
+            setCurrentSelectionFn={setCurrentSelectionFn}
+          />
+        ))}
+      </>
+    );
+  }
+);
