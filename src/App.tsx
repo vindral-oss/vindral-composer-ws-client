@@ -149,32 +149,36 @@ export default function App() {
         <div className="flex flex-col fixed top-0 bottom-0 left-0 w-[680px] max-w-[680px] bg-white z-20 p-3 border-r border-gray-200 shadow-md">
           <div className="mb-3">
             <h1 className="text-base font-bold mb-3">Connection</h1>
-            <div className="flex gap-1 mb-2">
-              <TextField
-                fullWidth
-                id="wsUrl"
-                label="Websocket URL"
-                size="small"
-                variant="outlined"
-                onChange={(e) => setInputWsUrl(e.target.value)}
-                value={inputWsUrl}
-              />
-              <Button
-                variant="contained"
-                name="setWsUrl"
-                size="small"
-                onClick={() => handleClickChangeSocketUrl(inputWsUrl)}
-                className="h-10 bg-[#FDBF79] text-black font-bold border-none hover:bg-[#fda94d]"
-              >
-                Set
-              </Button>
+            <div className="grid grid-cols-2 gap-2 items-center mb-2">
+              <div className="flex gap-1">
+                <TextField
+                  fullWidth
+                  id="wsUrl"
+                  label="Websocket URL"
+                  size="small"
+                  variant="outlined"
+                  onChange={(e) => setInputWsUrl(e.target.value)}
+                  value={inputWsUrl}
+                />
+                <Button
+                  variant="contained"
+                  name="setWsUrl"
+                  size="small"
+                  onClick={() => handleClickChangeSocketUrl(inputWsUrl)}
+                  className="h-10 !bg-[#FDBF79] !text-white font-bold !border-none hover:!bg-[#fda94d]"
+                >
+                  Set
+                </Button>
+              </div>
+              <div className="flex">
+                <ConnectionInfo status={readyState} url={socketUrl} />
+              </div>
             </div>
             {errorText !== "" && (
               <Alert className="mt-1" severity="error">
                 {errorText}
               </Alert>
             )}
-            <ConnectionInfo status={readyState} url={socketUrl} />
           </div>
           <div className="mb-2">
             <SendMessage
