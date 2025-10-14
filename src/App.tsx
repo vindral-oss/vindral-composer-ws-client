@@ -2,16 +2,12 @@ import { useState, useCallback, useEffect } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import { ConnectionInfo } from "./ConnectionInfo";
 import { MessageHistory } from "./MessageHistory";
-import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import React from "react";
 import { SendMessage } from "./SendMessage";
 import { AudioStrip } from "./AudioStrip";
-import Stack from "@mui/material/Stack";
-import Divider from "@mui/material/Divider";
-import Paper from "@mui/material/Paper";
 
 interface Message {
   Type: string;
@@ -148,15 +144,12 @@ export default function App() {
   }, []);
 
   return (
-    <Paper elevation={3} className="min-h-[100vh] h-[100vh] overflow-scroll">
-      <Grid container spacing={2}>
-        <div
-          style={{ boxShadow: "2px 0 16px -2px #888" }}
-          className="fixed w-[680px] max-w-[680px] bottom-0 top-0  bg-white z-20  p-4"
-        >
-          <div className="flex-1">
-            <h1 className="text-3xl mb-4">Connection</h1>
-            <div className="flex gap-x-4">
+    <div className="min-h-screen h-screen overflow-scroll bg-white">
+      <div className="flex">
+        <div className="flex flex-col fixed top-0 bottom-0 left-0 w-[680px] max-w-[680px] bg-white z-20 p-3 border-r border-gray-200 shadow-md">
+          <div className="mb-3">
+            <h1 className="text-base font-bold mb-3">Connection</h1>
+            <div className="flex gap-1 mb-2">
               <TextField
                 fullWidth
                 id="wsUrl"
@@ -166,44 +159,42 @@ export default function App() {
                 onChange={(e) => setInputWsUrl(e.target.value)}
                 value={inputWsUrl}
               />
-
               <Button
-                variant="outlined"
+                variant="contained"
                 name="setWsUrl"
                 size="small"
                 onClick={() => handleClickChangeSocketUrl(inputWsUrl)}
+                className="h-10 bg-[#FDBF79] text-black font-bold border-none hover:bg-[#fda94d]"
               >
                 Set
               </Button>
             </div>
             {errorText !== "" && (
-              <Alert className="mt-2" severity="error">
+              <Alert className="mt-1" severity="error">
                 {errorText}
               </Alert>
             )}
             <ConnectionInfo status={readyState} url={socketUrl} />
           </div>
-          <SendMessage
-            clickSelectedAudioStrip={currentSelection?.AudioStripName}
-            clickSelectedId={currentSelection?.PropertyId}
-            clickSelectedProperty={currentSelection?.PropertyName}
-            sendMessageFn={sendMessage}
-            audioStrips={audioStrips || []}
-          />
-          <div className="h-auto">
+          <div className="mb-2">
+            <SendMessage
+              clickSelectedAudioStrip={currentSelection?.AudioStripName}
+              clickSelectedId={currentSelection?.PropertyId}
+              clickSelectedProperty={currentSelection?.PropertyName}
+              sendMessageFn={sendMessage}
+              audioStrips={audioStrips || []}
+            />
+          </div>
+          <div className="flex-1 overflow-y-auto pt-1">
             <MessageHistory
               messages={messageHistory}
               lastMessage={lastMessage}
             />
           </div>
         </div>
-        <Grid size={9} className="p-4 ml-[678px]">
-          <h2 className="mt-2 mb-2 ml-4 text-3xl">Audio strips</h2>
-          <Stack
-            direction="row"
-            divider={<Divider orientation="vertical" flexItem />}
-            spacing={2}
-          >
+        <div className="flex-1 ml-[680px] p-8">
+          <h2 className="text-base font-bold mb-3">Audio strips</h2>
+          <div className="flex gap-6">
             {audioStrips && audioStrips.length > 0 ? (
               audioStrips?.map((audioObject) => (
                 <React.Fragment key={audioObject.Id}>
@@ -215,18 +206,18 @@ export default function App() {
                 </React.Fragment>
               ))
             ) : (
-              <div className="ml-4">
+              <div>
                 {readyState === ReadyState.CLOSED && (
-                  <div className="ml-4">Not connected to Composer.</div>
+                  <div>Not connected to Composer.</div>
                 )}
                 {readyState === ReadyState.CONNECTING && (
-                  <div className="ml-4">Connecting to Composer.</div>
+                  <div>Connecting to Composer.</div>
                 )}
               </div>
             )}
-          </Stack>
-        </Grid>
-      </Grid>
-    </Paper>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

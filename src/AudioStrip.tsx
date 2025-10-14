@@ -39,25 +39,31 @@ export const AudioStrip = ({
   setCurrentSelectionFn,
   lastUpdateProperty,
 }: AudioStripProps) => (
-  <div className="p-4">
-    <h1 className="text-xl">{audioObject.Name}</h1>
-    <h1>{audioObject.Id}</h1>
-    <TableContainer component={Paper} className="mt-2">
+  <div className="p-4 text-xs">
+    <h1 className="text-base font-bold mb-1">{audioObject.Name}</h1>
+    <h1 className="mb-2">{audioObject.Id}</h1>
+    <TableContainer component={Paper} className="mt-2 text-xs">
       <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
         <TableHead>
           <TableRow>
-            <StyledTableCell>Name</StyledTableCell>
+            <StyledTableCell className="text-xs">Name</StyledTableCell>
             {/* <StyledTableCell align="right">Type</StyledTableCell> */}
-            <StyledTableCell align="right">Value</StyledTableCell>
-            <StyledTableCell align="right">Writeable</StyledTableCell>
+            <StyledTableCell align="right" className="text-xs">
+              Value
+            </StyledTableCell>
+            <StyledTableCell align="right" className="text-xs">
+              Writeable
+            </StyledTableCell>
             {/* <StyledTableCell align="right">ValueEnum</StyledTableCell> */}
-            <StyledTableCell align="right">Description</StyledTableCell>
+            <StyledTableCell align="right" className="text-xs">
+              Description
+            </StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {audioObject.Properties.map((property) => (
             <StyledTableRow
-              className="even:bg-gray-50 odd:bg-gray-200 hover:bg-gray-300"
+              className="even:bg-gray-50 odd:bg-gray-200 hover:bg-gray-300 text-xs"
               key={property.PropertyName}
               sx={{
                 "&:last-child td, &:last-child th": { border: 0 },
@@ -74,7 +80,7 @@ export const AudioStrip = ({
                 }
                 className={`${
                   property.CanWrite ? "cursor-pointer" : "cursor-not-allowed"
-                }`}
+                } text-xs`}
                 component="th"
                 scope="row"
               >
@@ -85,18 +91,18 @@ export const AudioStrip = ({
                 className={`${
                   lastUpdateProperty?.PropertyName === property.PropertyName &&
                   lastUpdateProperty?.PropertyId === audioObject.Id
-                    ? "blink"
+                    ? "flash"
                     : "white"
-                }`}
+                } text-xs`}
                 align="right"
               >
                 {String(property.Value)}
               </StyledTableCell>
-              <StyledTableCell align="right">
+              <StyledTableCell align="right" className="text-xs">
                 {String(property.CanWrite)}
               </StyledTableCell>
               {/* <TableCell align="right">{property.ValueEnum}</TableCell> */}
-              <StyledTableCell align="right">
+              <StyledTableCell align="right" className="text-xs">
                 {property.PropertyDescription}
               </StyledTableCell>
             </StyledTableRow>

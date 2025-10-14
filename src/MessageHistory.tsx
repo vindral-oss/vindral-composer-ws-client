@@ -19,7 +19,7 @@ export const MessageHistory = ({ messages }: MessageHistoryProps) => {
   const [maxMessages, setMaxMessages] = useState<number>(100);
   return (
     <Box component="section" className="text-wrap break-words">
-      <h2 className="text-3xl">Messages</h2>
+      <h2 className="text-base font-bold mb-3">Messages</h2>
       <FormControlLabel
         control={<Switch />}
         checked={prettyPrint}
@@ -44,7 +44,7 @@ export const MessageHistory = ({ messages }: MessageHistoryProps) => {
       />
       <div className="overflow-y-auto max-h-[calc(63vh-80px)] px-1">
         {messages.slice(0, maxMessages).map((message, idx) => (
-          <Paper className="my-2" elevation={3} key={idx}>
+          <Paper className="my-2 text-xs" elevation={3} key={idx}>
             <WebsocketMessage message={message} prettyPrint={prettyPrint} />
           </Paper>
         ))}

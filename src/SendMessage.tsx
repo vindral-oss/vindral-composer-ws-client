@@ -48,13 +48,15 @@ export function SendMessage({
   return (
     <Box component="section" className="mb-8">
       <div>
-        <h2 className="mt-2 text-3xl">Send message</h2>
-        <div className="mb-4">
+        <h2 className="text-base font-bold mb-3">Send message</h2>
+        <div className="mb-4 text-xs">
           Construct your message, or click any writeable property in the
           table(s)
         </div>
-        <FormControl sx={{ padding: "6px 0" }} fullWidth>
-          <InputLabel id="audio-strip-label">Audio strip</InputLabel>
+        <FormControl sx={{ padding: "6px 0" }} fullWidth className="text-xs">
+          <InputLabel id="audio-strip-label" className="text-xs">
+            Audio strip
+          </InputLabel>
           <Select
             labelId="audio-strip-label"
             id="audio-strip"
@@ -66,14 +68,24 @@ export function SendMessage({
             }}
           >
             {audioStrips?.map((audioObject) => (
-              <MenuItem key={audioObject.Id} value={audioObject.Name}>
+              <MenuItem
+                key={audioObject.Id}
+                value={audioObject.Name}
+                className="text-xs"
+              >
                 {audioObject.Name}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
-        <FormControl sx={{ padding: "6px 0", margin: "6px 0" }} fullWidth>
-          <InputLabel id="property-name-label">Property name</InputLabel>
+        <FormControl
+          sx={{ padding: "6px 0", margin: "6px 0" }}
+          fullWidth
+          className="text-xs"
+        >
+          <InputLabel id="property-name-label" className="text-xs">
+            Property name
+          </InputLabel>
           <Select
             labelId="property-name-label"
             id="property-name"
@@ -89,6 +101,7 @@ export function SendMessage({
                     <MenuItem
                       key={property.PropertyName}
                       value={property.PropertyName}
+                      className="text-xs"
                     >
                       {property.PropertyName}
                     </MenuItem>
@@ -96,7 +109,7 @@ export function SendMessage({
               )}
           </Select>
         </FormControl>
-        <div className="flex mt-2 gap-x-4">
+        <div className="flex mt-2 gap-x-4 text-xs">
           <TextField
             fullWidth
             id="value"
@@ -107,7 +120,7 @@ export function SendMessage({
             value={propertyValue}
           />
           <Button
-            variant="outlined"
+            variant="contained"
             name="setWsUrl"
             onClick={() => {
               const updatedMessage = {
@@ -122,6 +135,7 @@ export function SendMessage({
               };
               sendMessageFn(JSON.stringify(updatedMessage));
             }}
+            className="bg-[#FDBF79] text-black font-bold border-none hover:bg-[#fda94d]"
           >
             Send
           </Button>
