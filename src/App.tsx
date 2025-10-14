@@ -185,7 +185,7 @@ export default function App() {
               audioStrips={audioStrips || []}
             />
           </div>
-          <div className="flex-1 overflow-y-auto pt-1">
+          <div className="flex-1 overflow-y-auto">
             <MessageHistory
               messages={messageHistory}
               lastMessage={lastMessage}
