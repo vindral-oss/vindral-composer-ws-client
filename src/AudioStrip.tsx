@@ -48,16 +48,10 @@ export const AudioStrip = ({
           <TableRow>
             <StyledTableCell className="text-xs">Name</StyledTableCell>
             {/* <StyledTableCell align="right">Type</StyledTableCell> */}
-            <StyledTableCell align="right" className="text-xs">
-              Value
-            </StyledTableCell>
-            <StyledTableCell align="right" className="text-xs">
-              Writeable
-            </StyledTableCell>
+            <StyledTableCell className="text-xs">Value</StyledTableCell>
+            <StyledTableCell className="text-xs">Writeable</StyledTableCell>
             {/* <StyledTableCell align="right">ValueEnum</StyledTableCell> */}
-            <StyledTableCell align="right" className="text-xs">
-              Description
-            </StyledTableCell>
+            <StyledTableCell className="text-xs">Description</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -94,15 +88,14 @@ export const AudioStrip = ({
                     ? "flash"
                     : "white"
                 } text-xs`}
-                align="right"
               >
                 {String(property.Value)}
               </StyledTableCell>
-              <StyledTableCell align="right" className="text-xs">
+              <StyledTableCell className="text-xs">
                 {String(property.CanWrite)}
               </StyledTableCell>
               {/* <TableCell align="right">{property.ValueEnum}</TableCell> */}
-              <StyledTableCell align="right" className="text-xs">
+              <StyledTableCell className="text-xs">
                 {property.PropertyDescription}
               </StyledTableCell>
             </StyledTableRow>

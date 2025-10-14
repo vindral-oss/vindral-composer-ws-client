@@ -7,6 +7,12 @@ import Alert from "@mui/material/Alert";
 import React from "react";
 import { SendMessage } from "./SendMessage";
 import { AudioStrip } from "./AudioStrip";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import ToggleButton from "@mui/material/ToggleButton";
+import ArrowRightAltOutlinedIcon from "@mui/icons-material/ArrowRightAltOutlined";
+import ArrowDownwardOutlinedIcon from "@mui/icons-material/ArrowDownwardOutlined";
+
+import ViewModuleIcon from "@mui/icons-material/ViewModule";
 
 interface Message {
   Type: string;
@@ -48,9 +54,43 @@ export interface UniqueSelection {
   PropertyName: string;
 }
 
-const extractAudioStrips = (response: unknown): ComposerAudioObject[] => {
+/**
+ * Optionally prunes content properties for performance reason
+ */
+const pruneProperties = (content: any) => {
+  const pruneAllPropertiesBut = [
+    "Mute",
+    "StereoGainDb",
+    "Pan",
+    "Mute",
+    "Solo",
+    "PFL",
+  ];
+  return {
+    ...content,
+    AudioMixerStrips: content.AudioMixerStrips.map(
+      (obj: ComposerAudioObject) => ({
+        ...obj,
+        Properties: obj.Properties.filter((name) =>
+          pruneAllPropertiesBut.includes(name.PropertyName)
+        ),
+      })
+    ),
+  };
+};
+
+const extractAudioStrips = (
+  response: unknown,
+  prune: SHOW_PROPERTIES = SHOW_PROPERTIES.ALL
+): ComposerAudioObject[] => {
   const parsedContent = JSON.parse(response as string);
-  const content = JSON.parse(parsedContent.Content);
+  let content = JSON.parse(parsedContent.Content);
+
+  // Pass prune = true to prune properties not in the list
+  if (prune === SHOW_PROPERTIES.PRUNE) {
+    content = pruneProperties(content);
+  }
+
   return Object.keys(content).map((k) => content[k])[0];
 };
 
@@ -82,6 +122,10 @@ const updatePropertyValue = (
 const WS_URL = "ws://localhost:8081";
 const RECONNECT_INTERVAL = 2000; // ms
 const RECONNECT_ATTEMPTS = 5000;
+const enum SHOW_PROPERTIES {
+  ALL = "all",
+  PRUNE = "prune",
+}
 const WS_URL_REGEX = new RegExp(
   /^(wss?:\/\/)([0-9]{1,3}(?:\.[0-9]{1,3}){3}|[^/]+):([0-9]{1,5})$/
 );
@@ -92,6 +136,9 @@ export default function App() {
   const [errorText, setErrorText] = useState<string>("");
   const [audioStrips, setAudioStrips] = useState<ComposerAudioObject[]>();
   const [currentSelection, setCurrentSelection] = useState<UniqueSelection>();
+  const [audioStripsLayout, setAudioStripsLayout] = useState<string | null>(
+    "horizontal"
+  );
   const [messageHistory, setMessageHistory] = useState<MessageEvent[]>([]);
   const [lastUpdateProperty, setLastUpdateProperty] =
     useState<UniqueSelection>();
@@ -105,7 +152,8 @@ export default function App() {
     onMessage: (message) => {
       const parsedJson = JSON.parse(message.data);
       if (parsedJson.Type === "AudioMixerSummary") {
-        setAudioStrips(extractAudioStrips(message.data));
+        // Set prune = false to get all properties
+        setAudioStrips(extractAudioStrips(message.data, SHOW_PROPERTIES.ALL));
       } else if (parsedJson.Type === "PropertyChanged") {
         const message = JSON.parse(parsedJson.Content);
         const updatedAudioStrips = updatePropertyValue(message, audioStrips);
@@ -142,32 +190,62 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleAlignment = (
+    _event: React.MouseEvent<HTMLElement>,
+    newAlignment: string | null
+  ) => {
+    setAudioStripsLayout(newAlignment);
+  };
+
   return (
     <div className="min-h-screen h-screen overflow-scroll bg-white">
       <div className="flex">
         <div className="flex flex-col fixed top-0 bottom-0 left-0 w-[680px] max-w-[680px] bg-white z-20 p-3 border-r border-gray-200 shadow-md">
           <div className="mb-3">
-            <h1 className="text-base font-bold mb-3">Connection</h1>
-            <div className="grid grid-cols-2 gap-2 items-center mb-2">
-              <div className="flex gap-1">
-                <TextField
-                  fullWidth
-                  id="wsUrl"
-                  label="Websocket URL"
-                  size="small"
-                  variant="outlined"
-                  onChange={(e) => setInputWsUrl(e.target.value)}
-                  value={inputWsUrl}
-                />
-                <Button
-                  variant="contained"
-                  name="setWsUrl"
-                  size="small"
-                  onClick={() => handleClickChangeSocketUrl(inputWsUrl)}
-                  className="bg-[#FDBF79] text-black font-bold border-none hover:bg-[#fda94d]"
+            <div className="grid grid-cols-2 gap-4 items-center mb-2">
+              <div>
+                <h1 className="text-base font-bold mb-3">Connection</h1>
+
+                <div className="flex gap-1">
+                  <TextField
+                    fullWidth
+                    id="wsUrl"
+                    label="Websocket URL"
+                    size="small"
+                    variant="outlined"
+                    onChange={(e) => setInputWsUrl(e.target.value)}
+                    value={inputWsUrl}
+                  />
+                  <Button
+                    variant="contained"
+                    name="setWsUrl"
+                    size="small"
+                    onClick={() => handleClickChangeSocketUrl(inputWsUrl)}
+                    className="bg-[#FDBF79] text-black font-bold border-none hover:bg-[#fda94d]"
+                  >
+                    Set
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <h1 className="text-base font-bold mb-3">Content layout</h1>
+
+                <ToggleButtonGroup
+                  value={audioStripsLayout}
+                  exclusive
+                  onChange={handleAlignment}
+                  aria-label="text alignment"
                 >
-                  Set
-                </Button>
+                  <ToggleButton value="horizontal" aria-label="left aligned">
+                    <ArrowRightAltOutlinedIcon />
+                  </ToggleButton>
+                  <ToggleButton value="vertical" aria-label="centered">
+                    <ArrowDownwardOutlinedIcon />
+                  </ToggleButton>
+                  <ToggleButton value="grid" aria-label="right aligned">
+                    <ViewModuleIcon />
+                  </ToggleButton>
+                </ToggleButtonGroup>
               </div>
             </div>
             {errorText !== "" && (
@@ -176,6 +254,7 @@ export default function App() {
               </Alert>
             )}
           </div>
+
           <div className="mb-2">
             <SendMessage
               clickSelectedAudioStrip={currentSelection?.AudioStripName}
@@ -192,9 +271,16 @@ export default function App() {
             />
           </div>
         </div>
-        <div className="flex-1 ml-[680px] p-8">
-          <h2 className="text-base font-bold mb-3">Audio strips</h2>
-          <div className="flex gap-6">
+        <div className="flex-1 ml-[680px] p-4">
+          <div
+            className={`flex ${
+              audioStripsLayout === "grid"
+                ? "flex-wrap"
+                : audioStripsLayout === "horizontal"
+                ? "flex"
+                : "flex flex-col"
+            }  gap-6`}
+          >
             {audioStrips && audioStrips.length > 0 ? (
               audioStrips?.map((audioObject) => (
                 <React.Fragment key={audioObject.Id}>
