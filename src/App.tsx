@@ -1,18 +1,7 @@
-import { useState, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
-import { MessageHistory } from "./MessageHistory";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Alert from "@mui/material/Alert";
-import React from "react";
-import { SendMessage } from "./SendMessage";
-import { AudioStrip } from "./AudioStrip";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import ToggleButton from "@mui/material/ToggleButton";
-import ArrowRightAltOutlinedIcon from "@mui/icons-material/ArrowRightAltOutlined";
-import ArrowDownwardOutlinedIcon from "@mui/icons-material/ArrowDownwardOutlined";
-
-import ViewModuleIcon from "@mui/icons-material/ViewModule";
+import { AudioStrips } from "./AudioStrips";
+import { LeftPane } from "./LeftPane";
 
 interface Message {
   Type: string;
@@ -131,6 +120,7 @@ const WS_URL_REGEX = new RegExp(
 );
 
 export default function App() {
+  const [messagesAccordionOpen, setMessagesAccordionOpen] = useState(false);
   const [socketUrl, setSocketUrl] = useState(WS_URL);
   const [inputWsUrl, setInputWsUrl] = useState(WS_URL);
   const [errorText, setErrorText] = useState<string>("");
@@ -200,77 +190,23 @@ export default function App() {
   return (
     <div className="min-h-screen h-screen overflow-scroll bg-white">
       <div className="flex">
-        <div className="flex flex-col fixed top-0 bottom-0 left-0 w-[680px] max-w-[680px] bg-white z-20 p-3 border-r border-gray-200 shadow-md">
-          <div className="mb-3">
-            <div className="grid grid-cols-2 gap-4 items-center mb-2">
-              <div>
-                <h1 className="text-base font-bold mb-3">Connection</h1>
-
-                <div className="flex gap-1">
-                  <TextField
-                    fullWidth
-                    id="wsUrl"
-                    label="Websocket URL"
-                    size="small"
-                    variant="outlined"
-                    onChange={(e) => setInputWsUrl(e.target.value)}
-                    value={inputWsUrl}
-                  />
-                  <Button
-                    variant="contained"
-                    name="setWsUrl"
-                    size="small"
-                    onClick={() => handleClickChangeSocketUrl(inputWsUrl)}
-                    className="bg-[#FDBF79] text-black font-bold border-none hover:bg-[#fda94d]"
-                  >
-                    Set
-                  </Button>
-                </div>
-              </div>
-              <div>
-                <h1 className="text-base font-bold mb-3">Content layout</h1>
-
-                <ToggleButtonGroup
-                  value={audioStripsLayout}
-                  exclusive
-                  onChange={handleAlignment}
-                  aria-label="text alignment"
-                >
-                  <ToggleButton value="horizontal" aria-label="left aligned">
-                    <ArrowRightAltOutlinedIcon />
-                  </ToggleButton>
-                  <ToggleButton value="vertical" aria-label="centered">
-                    <ArrowDownwardOutlinedIcon />
-                  </ToggleButton>
-                  <ToggleButton value="grid" aria-label="right aligned">
-                    <ViewModuleIcon />
-                  </ToggleButton>
-                </ToggleButtonGroup>
-              </div>
-            </div>
-            {errorText !== "" && (
-              <Alert className="mt-1" severity="error">
-                {errorText}
-              </Alert>
-            )}
-          </div>
-
-          <div className="mb-2">
-            <SendMessage
-              clickSelectedAudioStrip={currentSelection?.AudioStripName}
-              clickSelectedId={currentSelection?.PropertyId}
-              clickSelectedProperty={currentSelection?.PropertyName}
-              sendMessageFn={sendMessage}
-              audioStrips={audioStrips || []}
-            />
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            <MessageHistory
-              messages={messageHistory}
-              lastMessage={lastMessage}
-            />
-          </div>
-        </div>
+        <LeftPane
+          errorText={errorText}
+          inputWsUrl={inputWsUrl}
+          setInputWsUrl={(e) => setInputWsUrl(e.target.value)}
+          handleClickChangeSocketUrl={() =>
+            handleClickChangeSocketUrl(inputWsUrl)
+          }
+          audioStrips={audioStrips || []}
+          currentSelection={currentSelection}
+          sendMessage={sendMessage}
+          messageHistory={messageHistory}
+          lastMessage={lastMessage}
+          audioStripsLayout={audioStripsLayout}
+          setAudioStripsLayout={handleAlignment}
+          messagesAccordionOpen={messagesAccordionOpen}
+          setMessagesAccordionOpen={setMessagesAccordionOpen}
+        />
         <div className="flex-1 ml-[680px] p-4">
           <div
             className={`flex ${
@@ -282,15 +218,10 @@ export default function App() {
             }  gap-6`}
           >
             {audioStrips && audioStrips.length > 0 ? (
-              audioStrips?.map((audioObject) => (
-                <React.Fragment key={audioObject.Id}>
-                  <AudioStrip
-                    audioObject={audioObject}
-                    lastUpdateProperty={lastUpdateProperty}
-                    setCurrentSelectionFn={setCurrentSelection}
-                  />
-                </React.Fragment>
-              ))
+              <AudioStrips
+                audioStrips={audioStrips}
+                setCurrentSelectionFn={setCurrentSelection}
+              />
             ) : (
               <div>
                 {readyState === ReadyState.CLOSED && (
