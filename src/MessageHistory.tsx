@@ -22,7 +22,7 @@ export const MessageHistory = ({ messages }: MessageHistoryProps) => {
     <Box component="section" className="text-wrap break-words">
       <div className="sticky top-0 mb-2 bg-white z-10 border-b pb-2 border-gray-200 shadow-md">
         <h2 className="text-base font-bold mb-3">Messages</h2>
-        <div className="flex gap-x-2">
+        <div className="grid grid-cols-5 gap-x-2">
           <FormControlLabel
             control={<Switch />}
             checked={prettyPrint}
@@ -30,6 +30,7 @@ export const MessageHistory = ({ messages }: MessageHistoryProps) => {
               setPrettyPrint(!prettyPrint);
             }}
             label="Pretty"
+            className="col-span-1"
           />
           <TextField
             type="text"
@@ -37,6 +38,7 @@ export const MessageHistory = ({ messages }: MessageHistoryProps) => {
             size="small"
             label="Filter messages"
             onChange={(e) => setFilter(e.target.value)}
+            className="col-span-2"
           />
           <TextField
             type="number"
@@ -55,6 +57,7 @@ export const MessageHistory = ({ messages }: MessageHistoryProps) => {
             }}
             label="Message history"
             onChange={(e) => setMaxMessages(Number.parseInt(e.target.value))}
+            className="col-span-2"
           />
         </div>
       </div>
