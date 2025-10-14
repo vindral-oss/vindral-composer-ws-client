@@ -40,9 +40,8 @@ export const AudioStrips: React.FC<AudioStripsProps> = React.memo(
       return (
         <div className="flex flex-row flex-wrap gap-6">
           {audioStrips.map((audioObject: ComposerAudioObject) => (
-            <div className="flex-1 min-w-[340px] max-w-[480px]">
+            <div key={audioObject.Id} className="flex-1 min-w-[340px] max-w-[480px]">
               <MemoizedAudioStrip
-                key={audioObject.Id}
                 audioObject={audioObject}
                 setCurrentSelectionFn={setCurrentSelectionFn}
                 layout="vertical"
