@@ -221,6 +221,13 @@ export default function App() {
               <AudioStrips
                 audioStrips={audioStrips}
                 setCurrentSelectionFn={setCurrentSelection}
+                layout={
+                  audioStripsLayout === "grid"
+                    ? "grid"
+                    : audioStripsLayout === "horizontal"
+                    ? "horizontal"
+                    : "vertical"
+                }
               />
             ) : (
               <div>

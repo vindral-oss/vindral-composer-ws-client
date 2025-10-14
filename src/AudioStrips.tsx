@@ -5,6 +5,7 @@ import type { ComposerAudioObject, UniqueSelection } from "./App";
 interface AudioStripsProps {
   audioStrips: ComposerAudioObject[];
   setCurrentSelectionFn: (props: UniqueSelection) => void;
+  layout: "horizontal" | "vertical" | "grid";
 }
 
 // Custom shallow compare for audioObject
@@ -27,19 +28,38 @@ function shallowEqual(objA: ComposerAudioObject, objB: ComposerAudioObject) {
   return true;
 }
 
-const MemoizedAudioStrip = React.memo(AudioStrip, (prevProps, nextProps) =>
-  shallowEqual(prevProps.audioObject, nextProps.audioObject)
-);
+const MemoizedAudioStrip = React.memo(AudioStrip, (prevProps, nextProps) => {
+  const audioEqual = shallowEqual(prevProps.audioObject, nextProps.audioObject);
+  const layoutEqual = prevProps.layout === nextProps.layout;
+  return audioEqual && layoutEqual;
+});
 
 export const AudioStrips: React.FC<AudioStripsProps> = React.memo(
-  ({ audioStrips, setCurrentSelectionFn }) => {
+  ({ audioStrips, setCurrentSelectionFn, layout }: AudioStripsProps) => {
+    if (layout === "grid") {
+      return (
+        <div className="flex flex-row flex-wrap gap-6">
+          {audioStrips.map((audioObject: ComposerAudioObject) => (
+            <div className="flex-1 min-w-[340px] max-w-[480px]">
+              <MemoizedAudioStrip
+                key={audioObject.Id}
+                audioObject={audioObject}
+                setCurrentSelectionFn={setCurrentSelectionFn}
+                layout="vertical"
+              />
+            </div>
+          ))}
+        </div>
+      );
+    }
     return (
       <>
-        {audioStrips.map((audioObject) => (
+        {audioStrips.map((audioObject: ComposerAudioObject) => (
           <MemoizedAudioStrip
             key={audioObject.Id}
             audioObject={audioObject}
             setCurrentSelectionFn={setCurrentSelectionFn}
+            layout={layout}
           />
         ))}
       </>
