@@ -80,14 +80,14 @@ const LeftPaneComponent: React.FC<LeftPaneProps> = ({
               onChange={setAudioStripsLayout}
               aria-label="text alignment"
             >
+              <ToggleButton value="grid" aria-label="right aligned">
+                <ViewModuleIcon />
+              </ToggleButton>
               <ToggleButton value="horizontal" aria-label="left aligned">
                 <ArrowRightAltOutlinedIcon />
               </ToggleButton>
               <ToggleButton value="vertical" aria-label="centered">
                 <ArrowDownwardOutlinedIcon />
-              </ToggleButton>
-              <ToggleButton value="grid" aria-label="right aligned">
-                <ViewModuleIcon />
               </ToggleButton>
             </ToggleButtonGroup>
           </div>

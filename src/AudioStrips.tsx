@@ -47,7 +47,7 @@ export const AudioStrips: React.FC<AudioStripsProps> = React.memo(
               <MemoizedAudioStrip
                 audioObject={audioObject}
                 setCurrentSelectionFn={setCurrentSelectionFn}
-                layout="vertical"
+                layout="grid"
               />
             </div>
           ))}

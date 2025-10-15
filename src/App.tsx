@@ -89,7 +89,7 @@ export default function App() {
   const [audioStrips, setAudioStrips] = useState<ComposerAudioObject[]>();
   const [currentSelection, setCurrentSelection] = useState<UniqueSelection>();
   const [audioStripsLayout, setAudioStripsLayout] = useState<string | null>(
-    "horizontal"
+    "grid"
   );
   const [messageHistory, setMessageHistory] = useState<MessageEvent[]>([]);
   const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, {
