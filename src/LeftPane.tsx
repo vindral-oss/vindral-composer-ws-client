@@ -16,13 +16,14 @@ import ArrowRightAltOutlinedIcon from "@mui/icons-material/ArrowRightAltOutlined
 import ArrowDownwardOutlinedIcon from "@mui/icons-material/ArrowDownwardOutlined";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import type { ComposerAudioObject } from "./App";
 
 export interface LeftPaneProps {
   errorText: string;
   inputWsUrl: string;
   setInputWsUrl: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleClickChangeSocketUrl: () => void;
-  audioStrips: any[];
+  audioStrips: ComposerAudioObject[];
   currentSelection?: {
     AudioStripName?: string;
     PropertyId?: string;
@@ -52,8 +53,6 @@ const LeftPaneComponent: React.FC<LeftPaneProps> = ({
   lastMessage,
   audioStripsLayout,
   setAudioStripsLayout,
-  messagesAccordionOpen,
-  setMessagesAccordionOpen,
 }) => {
   return (
     <div className="flex flex-col fixed top-0 bottom-0 left-0 w-[680px] max-w-[680px] bg-white z-20 p-3 border-r border-gray-200 shadow-md">
@@ -117,24 +116,11 @@ const LeftPaneComponent: React.FC<LeftPaneProps> = ({
         />
       </div>
       <div className="flex-1 overflow-y-auto">
-        <Accordion
-          expanded={messagesAccordionOpen}
-          onChange={(_, open) => setMessagesAccordionOpen(open)}
-        >
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <h2 className="text-base font-bold mb-3">Messages</h2>
-          </AccordionSummary>
-          <AccordionDetails>
-            {messagesAccordionOpen && (
-              // Only render the contents, not another accordion
-              <MemoizedMessageHistory
-                messages={messageHistory}
-                lastMessage={lastMessage}
-                noAccordion
-              />
-            )}
-          </AccordionDetails>
-        </Accordion>
+        <MemoizedMessageHistory
+          messages={messageHistory}
+          lastMessage={lastMessage}
+          noAccordion
+        />
       </div>
     </div>
   );

@@ -7,11 +7,7 @@ import {
   Paper,
   Switch,
   TextField,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import React from "react";
 
 export interface MessageHistoryProps {
@@ -19,15 +15,10 @@ export interface MessageHistoryProps {
   lastMessage: MessageEvent<unknown> | null;
 }
 
-export const MessageHistory = ({
-  messages,
-  noAccordion,
-}: MessageHistoryProps & { noAccordion?: boolean }) => {
+export const MessageHistory = ({ messages }: MessageHistoryProps) => {
   const [prettyPrint, setPrettyPrint] = useState<boolean>(true);
   const [maxMessages, setMaxMessages] = useState<number>(100);
   const [filter, setFilter] = useState<string>("");
-  const [open, setOpen] = useState<boolean>(false);
-  const showAccordion = !noAccordion;
 
   const messageList = (
     <Box component="section" className="text-wrap break-words">
@@ -93,18 +84,10 @@ export const MessageHistory = ({
     </Box>
   );
 
-  if (!showAccordion) {
-    return messageList;
-  }
-
   return (
     <Box component="section" className="text-wrap break-words">
-      <Accordion expanded={open} onChange={(_, isOpen) => setOpen(isOpen)}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <h2 className="text-base font-bold mb-3">Messages</h2>
-        </AccordionSummary>
-        <AccordionDetails>{messageList}</AccordionDetails>
-      </Accordion>
+      <h2 className="text-base font-bold mb-3">Messages</h2>
+      {messageList}
     </Box>
   );
 };

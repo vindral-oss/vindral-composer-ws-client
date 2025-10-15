@@ -120,7 +120,6 @@ const WS_URL_REGEX = new RegExp(
 );
 
 export default function App() {
-  const [messagesAccordionOpen, setMessagesAccordionOpen] = useState(false);
   const [socketUrl, setSocketUrl] = useState(WS_URL);
   const [inputWsUrl, setInputWsUrl] = useState(WS_URL);
   const [errorText, setErrorText] = useState<string>("");
@@ -204,8 +203,6 @@ export default function App() {
           lastMessage={lastMessage}
           audioStripsLayout={audioStripsLayout}
           setAudioStripsLayout={handleAlignment}
-          messagesAccordionOpen={messagesAccordionOpen}
-          setMessagesAccordionOpen={setMessagesAccordionOpen}
         />
         <div className="flex-1 ml-[680px] p-4">
           <div
