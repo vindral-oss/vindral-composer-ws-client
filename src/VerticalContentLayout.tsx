@@ -31,7 +31,11 @@ export const VerticalContentLayout: React.FC<VerticalContentLayoutProps> = ({
                 ? "cursor-pointer text-blue-700"
                 : "cursor-not-allowed text-gray-400"
             }`}
-            style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+            style={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
           >
             {property.PropertyName}
           </span>

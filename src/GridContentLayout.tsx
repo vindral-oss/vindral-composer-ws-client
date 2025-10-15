@@ -31,7 +31,11 @@ export const GridContentLayout: React.FC<GridContentLayoutProps> = ({
               : "cursor-not-allowed text-gray-400"
           }`}
           title={property.PropertyDescription}
-          style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+          style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
         >
           {property.PropertyName}
         </div>
