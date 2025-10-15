@@ -5,19 +5,14 @@ import type { ComposerAudioObject, UniqueSelection } from "./App";
 export interface AudioStripProps {
   audioObject: ComposerAudioObject;
   setCurrentSelectionFn: (props: UniqueSelection) => void;
-  lastUpdateProperty?: UniqueSelection;
   layout?: "horizontal" | "vertical" | "grid";
 }
-
-// StyledTableCell and StyledTableRow removed
 
 export const AudioStrip = ({
   audioObject,
   setCurrentSelectionFn,
-  lastUpdateProperty,
   layout = "horizontal",
 }: AudioStripProps) => {
-  // Layout for property sets
   let propertiesLayout;
   if (layout === "horizontal") {
     propertiesLayout = (
@@ -52,12 +47,6 @@ export const AudioStrip = ({
                   property.CanWrite
                     ? "border-blue-300 bg-blue-50 text-blue-900 shadow-sm"
                     : "border-gray-200 bg-gray-100 text-gray-500 cursor-default"
-                }
-                ${
-                  lastUpdateProperty?.PropertyName === property.PropertyName &&
-                  lastUpdateProperty?.PropertyId === audioObject.Id
-                    ? "flash border-blue-400 bg-blue-50"
-                    : ""
                 }
               `}
               style={{ pointerEvents: "none", minWidth: "60px" }}
@@ -112,13 +101,6 @@ export const AudioStrip = ({
                       ? "border-blue-300 bg-blue-50 text-blue-900 shadow-sm"
                       : "border-gray-200 bg-gray-100 text-gray-500 cursor-default"
                   }
-                  ${
-                    lastUpdateProperty?.PropertyName ===
-                      property.PropertyName &&
-                    lastUpdateProperty?.PropertyId === audioObject.Id
-                      ? "flash border-blue-400 bg-blue-50"
-                      : ""
-                  }
                 `}
                 style={{ pointerEvents: "none" }}
               >
@@ -172,13 +154,6 @@ export const AudioStrip = ({
                       ? "border-blue-300 bg-blue-50 text-blue-900 shadow-sm"
                       : "border-gray-200 bg-gray-100 text-gray-500 cursor-default"
                   }
-                  ${
-                    lastUpdateProperty?.PropertyName ===
-                      property.PropertyName &&
-                    lastUpdateProperty?.PropertyId === audioObject.Id
-                      ? "flash border-blue-400 bg-blue-50"
-                      : ""
-                  }
                 `}
                 style={{ pointerEvents: "none" }}
               >
@@ -199,7 +174,6 @@ export const AudioStrip = ({
       </div>
     );
   } else {
-    // grid mode: properties vertical, audio strips in grid
     propertiesLayout = (
       <div className="flex flex-col gap-4">
         {audioObject.Properties.map((property) => (
@@ -233,13 +207,6 @@ export const AudioStrip = ({
                       ? "border-blue-300 bg-blue-50 text-blue-900 shadow-sm"
                       : "border-gray-200 bg-gray-100 text-gray-500 cursor-default"
                   }
-                  ${
-                    lastUpdateProperty?.PropertyName ===
-                      property.PropertyName &&
-                    lastUpdateProperty?.PropertyId === audioObject.Id
-                      ? "flash border-blue-400 bg-blue-50"
-                      : ""
-                  }
                 `}
                 style={{ pointerEvents: "none" }}
               >
@@ -269,9 +236,7 @@ export const AudioStrip = ({
           </div>
           <div className="text-xs text-gray-500">ID: {audioObject.Id}</div>
         </div>
-        <div className="flex gap-2">
-          {/* Add any strip-level controls here if needed */}
-        </div>
+        <div className="flex gap-2"></div>
       </div>
       {propertiesLayout}
     </div>

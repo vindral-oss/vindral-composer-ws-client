@@ -17,12 +17,14 @@ export interface MessageHistoryProps {
 
 export const MessageHistory = ({ messages }: MessageHistoryProps) => {
   const [prettyPrint, setPrettyPrint] = useState<boolean>(true);
-  const [maxMessages, setMaxMessages] = useState<number>(100);
+  const [maxMessages, setMaxMessages] = useState<number>(20);
   const [filter, setFilter] = useState<string>("");
 
   const messageList = (
     <Box component="section" className="text-wrap break-words">
       <div className="sticky top-0 mb-2 bg-white z-10 border-b pb-2 border-gray-200 shadow-md">
+        <h2 className="text-base font-bold mb-3">Messages</h2>
+
         <div className="grid grid-cols-5 gap-x-2">
           <FormControlLabel
             control={<Switch />}
@@ -52,7 +54,7 @@ export const MessageHistory = ({ messages }: MessageHistoryProps) => {
                 ),
               },
               htmlInput: {
-                max: 1000,
+                max: 200,
                 min: 1,
               },
             }}
@@ -86,7 +88,6 @@ export const MessageHistory = ({ messages }: MessageHistoryProps) => {
 
   return (
     <Box component="section" className="text-wrap break-words">
-      <h2 className="text-base font-bold mb-3">Messages</h2>
       {messageList}
     </Box>
   );

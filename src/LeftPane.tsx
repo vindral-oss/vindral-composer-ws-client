@@ -5,13 +5,7 @@ import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import { SendMessage } from "./SendMessage";
 import { MemoizedMessageHistory } from "./MessageHistory";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
 import ToggleButton from "@mui/material/ToggleButton";
-
 import ArrowRightAltOutlinedIcon from "@mui/icons-material/ArrowRightAltOutlined";
 import ArrowDownwardOutlinedIcon from "@mui/icons-material/ArrowDownwardOutlined";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
@@ -37,8 +31,6 @@ export interface LeftPaneProps {
     _event: React.MouseEvent<HTMLElement>,
     newAlignment: string | null
   ) => void;
-  messagesAccordionOpen: boolean;
-  setMessagesAccordionOpen: (open: boolean) => void;
 }
 
 const LeftPaneComponent: React.FC<LeftPaneProps> = ({
@@ -119,7 +111,6 @@ const LeftPaneComponent: React.FC<LeftPaneProps> = ({
         <MemoizedMessageHistory
           messages={messageHistory}
           lastMessage={lastMessage}
-          noAccordion
         />
       </div>
     </div>

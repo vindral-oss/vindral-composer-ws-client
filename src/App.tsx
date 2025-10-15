@@ -43,42 +43,9 @@ export interface UniqueSelection {
   PropertyName: string;
 }
 
-/**
- * Optionally prunes content properties for performance reason
- */
-const pruneProperties = (content: any) => {
-  const pruneAllPropertiesBut = [
-    "Mute",
-    "StereoGainDb",
-    "Pan",
-    "Mute",
-    "Solo",
-    "PFL",
-  ];
-  return {
-    ...content,
-    AudioMixerStrips: content.AudioMixerStrips.map(
-      (obj: ComposerAudioObject) => ({
-        ...obj,
-        Properties: obj.Properties.filter((name) =>
-          pruneAllPropertiesBut.includes(name.PropertyName)
-        ),
-      })
-    ),
-  };
-};
-
-const extractAudioStrips = (
-  response: unknown,
-  prune: SHOW_PROPERTIES = SHOW_PROPERTIES.ALL
-): ComposerAudioObject[] => {
+const extractAudioStrips = (response: unknown): ComposerAudioObject[] => {
   const parsedContent = JSON.parse(response as string);
-  let content = JSON.parse(parsedContent.Content);
-
-  // Pass prune = true to prune properties not in the list
-  if (prune === SHOW_PROPERTIES.PRUNE) {
-    content = pruneProperties(content);
-  }
+  const content = JSON.parse(parsedContent.Content);
 
   return Object.keys(content).map((k) => content[k])[0];
 };
@@ -111,10 +78,6 @@ const updatePropertyValue = (
 const WS_URL = "ws://localhost:8081";
 const RECONNECT_INTERVAL = 2000; // ms
 const RECONNECT_ATTEMPTS = 5000;
-const enum SHOW_PROPERTIES {
-  ALL = "all",
-  PRUNE = "prune",
-}
 const WS_URL_REGEX = new RegExp(
   /^(wss?:\/\/)([0-9]{1,3}(?:\.[0-9]{1,3}){3}|[^/]+):([0-9]{1,5})$/
 );
@@ -129,8 +92,6 @@ export default function App() {
     "horizontal"
   );
   const [messageHistory, setMessageHistory] = useState<MessageEvent[]>([]);
-  const [lastUpdateProperty, setLastUpdateProperty] =
-    useState<UniqueSelection>();
   const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, {
     shouldReconnect: () => true,
     onOpen: () => {
@@ -141,16 +102,10 @@ export default function App() {
     onMessage: (message) => {
       const parsedJson = JSON.parse(message.data);
       if (parsedJson.Type === "AudioMixerSummary") {
-        // Set prune = false to get all properties
-        setAudioStrips(extractAudioStrips(message.data, SHOW_PROPERTIES.ALL));
+        setAudioStrips(extractAudioStrips(message.data));
       } else if (parsedJson.Type === "PropertyChanged") {
         const message = JSON.parse(parsedJson.Content);
         const updatedAudioStrips = updatePropertyValue(message, audioStrips);
-        setLastUpdateProperty({
-          AudioStripName: parsedJson.Name,
-          PropertyId: message.ObjectId,
-          PropertyName: message.PropertyName,
-        });
         setAudioStrips(updatedAudioStrips);
       }
     },
@@ -176,7 +131,6 @@ export default function App() {
     } else {
       setErrorText(url + " is not a valid websocket url");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAlignment = (
