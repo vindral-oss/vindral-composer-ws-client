@@ -41,11 +41,12 @@ The left drawer allows the user to change;
 - `Websocket URL`
 - The output (printing) format of incoming messages (either raw or `Pretty`)
 - Set a message history `Limit`
+- Filter incoming messages
 - Send messages
 
 ## Sending messages
 
-There are two ways to send messages;
+There are two ways to send messages - both ways will programmatically build and show the exact formatted string that is is sent to the WebSocket.
 
 ### Manually constructing the message object
 
