@@ -16,7 +16,7 @@ export const AudioStrip = ({
   let propertiesLayout;
   if (layout === "horizontal") {
     propertiesLayout = (
-      <div className="flex flex-row flex-wrap gap-4">
+      <div className="flex flex-row flex-wrap gap-1">
         {audioObject.Properties.map((property) => (
           <div
             key={property.PropertyName}
