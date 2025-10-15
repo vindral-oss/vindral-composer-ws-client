@@ -7,7 +7,6 @@ import {
   Switch,
   TextField,
 } from "@mui/material";
-import React from "react";
 import { WebsocketMessage } from "./WebsocketMessage";
 
 export interface MessageHistoryProps {
@@ -93,4 +92,4 @@ export const MessageHistory = ({ messages }: MessageHistoryProps) => {
   );
 };
 
-export const MemoizedMessageHistory = React.memo(MessageHistory);
+// export const MemoizedMessageHistory = React.memo(MessageHistory);
