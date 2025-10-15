@@ -1,5 +1,5 @@
-# Run
-
+# Build and run
+`npm install`
 `npm run dev`
 
 # Prerequisites
