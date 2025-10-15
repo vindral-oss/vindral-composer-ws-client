@@ -29,7 +29,7 @@ export const VerticalContentLayout: React.FC<
       return (
         <div
           key={property.PropertyName}
-          className={`flex flex-col items-start px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors min-w-[180px] max-w-[220px] flex-1 outline outline-1 ${
+          className={`flex flex-col items-start px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors min-w-[180px] max-w-[220px] flex-1 outline-1 ${
             isWritable ? "cursor-pointer" : "cursor-not-allowed"
           } ${isSelected ? "outline-black" : "outline-transparent"}`}
           onClick={handleClick}

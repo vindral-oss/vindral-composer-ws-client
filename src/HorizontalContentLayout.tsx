@@ -1,3 +1,5 @@
+import type { ComposerAudioObject, UniqueSelection } from "./App";
+
 interface HorizontalContentLayoutProps {
   audioObject: ComposerAudioObject;
   setCurrentSelectionFn: (props: UniqueSelection) => void;
@@ -26,11 +28,9 @@ export const HorizontalContentLayout: React.FC<
       return (
         <div
           key={property.PropertyName}
-          className={`flex flex-row items-center px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors flex-auto gap-4 ${
+          className={`flex flex-row items-center px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 flex-auto gap-4 ${
             isWritable ? "cursor-pointer" : "cursor-not-allowed"
-          } ${
-            isSelected ? "border-2 border-black" : "border border-transparent"
-          }`}
+          } ${isSelected ? "outline-1 outline-black" : "border-transparent"}`}
           onClick={handleClick}
         >
           <div className="flex items-center flex-1 min-w-[90px]">

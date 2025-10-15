@@ -33,9 +33,7 @@ export const GridContentLayout: React.FC<GridContentLayoutProps> = ({
           key={audioObject.Id + "-" + property.PropertyName + "-" + idx}
           className={`flex flex-col items-start px-2 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors min-w-[100px] w-full ${
             isWritable ? "cursor-pointer" : "cursor-not-allowed"
-          } ${
-            isSelected ? "border-2 border-black" : "border border-transparent"
-          }`}
+          } ${isSelected ? "outline-1 outline-black" : "border-transparent"}`}
           onClick={handleClick}
         >
           <div
@@ -53,7 +51,7 @@ export const GridContentLayout: React.FC<GridContentLayoutProps> = ({
           </div>
           <div className="flex flex-row gap-2 w-full">
             <div
-              className={`px-2 py-1 rounded text-xs font-mono border w-full transition-colors duration-150
+              className={`px-2 py-1 rounded text-xs font-mono border w-full
                 ${
                   isWritable
                     ? "border-blue-300 bg-blue-50 text-blue-900 shadow-sm"
