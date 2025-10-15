@@ -8,8 +8,8 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import type { ComposerAudioObject } from "./App";
-import type { ComposerProperty } from "./App";
+import type { ComposerAudioObject } from "../App";
+import type { ComposerProperty } from "../App";
 import Fab from "@mui/material/Fab";
 
 export interface SendMessageProps {

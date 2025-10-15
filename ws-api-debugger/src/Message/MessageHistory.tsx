@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { WebsocketMessage } from "./WebsocketMessage";
 import {
   Box,
   FormControlLabel,
@@ -9,6 +8,7 @@ import {
   TextField,
 } from "@mui/material";
 import React from "react";
+import { WebsocketMessage } from "./WebsocketMessage";
 
 export interface MessageHistoryProps {
   messages: MessageEvent<unknown>[];

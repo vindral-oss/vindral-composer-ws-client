@@ -1,24 +1,12 @@
-import { useEffect, useState } from "react";
-import useWebSocket, { ReadyState } from "react-use-websocket";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Alert from "@mui/material/Alert";
-import { SendMessage } from "./SendMessage";
-import { MemoizedMessageHistory } from "./MessageHistory";
-import { ConnectionStatusIndicator } from "./Connection/ConnectionStatusIndicator";
-import { Connection } from "./Connection/Connection";
-
-// interface Message {
-//   Type: string;
-//   Content: string | ContentString;
-// }
-
-// interface ContentString {
-//   ObjectId: string;
-//   PropertyName: string;
-//   Value: string | number;
-// }
-
+import { useCallback, useEffect, useState } from "react";
+import useWebSocket from "react-use-websocket";
+import { Connection } from "./Connection/ConnectionContainer";
+import { MemoizedMessageHistory } from "./Message/MessageHistory";
+import { SendMessage } from "./Message/SendMessage";
+import {
+  SubscribeContainer,
+  type Subscription,
+} from "./Message/SubscribeContainer";
 export interface ComposerAudioObject {
   Id: string;
   Name: string;
@@ -36,11 +24,6 @@ export type ComposerProperty = {
   Value: number | string;
   ValueEnum?: "string";
 };
-
-// const subscribeMessage: Message = {
-//   Type: "Subscribe",
-//   Content: "audiomixer",
-// };
 
 // export interface UniqueSelection {
 //   AudioStripName: string;
@@ -84,26 +67,54 @@ const WS_URL = "ws://localhost:8081";
 
 export default function App() {
   const [socketUrl, setSocketUrl] = useState(WS_URL);
+  const [isConnected, setIsConnected] = useState(false);
   const [audioStrips, setAudioStrips] = useState<ComposerAudioObject[]>();
   const [messageHistory, setMessageHistory] = useState<MessageEvent[]>([]);
-  const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl, {
-    shouldReconnect: () => false,
-    onOpen: () => {
-      // sendMessage(JSON.stringify(subscribeMessage));
-    },
+  const [urlError, setUrlError] = useState<string>("");
+  const [activeSubscriptions, setActiveSubscriptions] = useState<
+    Subscription[]
+  >([]);
 
-    onMessage: (message) => {
-      const parsedJson = JSON.parse(message.data);
-      if (parsedJson.Type === "AudioMixerSummary") {
-        setAudioStrips(extractAudioStrips(message.data));
-      }
-    },
-    onClose: () => {
-      setMessageHistory([]);
-      setAudioStrips([]);
-      console.log("Connection is closed");
-    },
-  });
+  const { sendMessage, lastMessage, readyState } = useWebSocket(
+    isConnected ? socketUrl : null, // Only connect when isConnected is true
+    {
+      shouldReconnect: () => false,
+
+      onOpen: () => {
+        setUrlError("");
+      },
+
+      onError: (event) => {
+        console.error("WebSocket error observed:", event);
+        setUrlError(
+          `Unable to connect to ${socketUrl}. Server not responding or unreachable.`
+        );
+        setIsConnected(false);
+      },
+
+      onMessage: (message) => {
+        const parsedJson = JSON.parse(message.data);
+        if (parsedJson.Type === "AudioMixerSummary") {
+          setAudioStrips(extractAudioStrips(message.data));
+        } else if (parsedJson.Type === "SubscriptionConfirmed") {
+          const subscriptionName = parsedJson.Content;
+          setActiveSubscriptions((prev) => {
+            // Avoid duplicates
+            if (prev.some((sub) => sub.Name === subscriptionName)) {
+              return prev;
+            }
+            return [...prev, { Name: subscriptionName }];
+          });
+        }
+      },
+
+      onClose: () => {
+        setMessageHistory([]);
+        setAudioStrips([]);
+        setIsConnected(false);
+      },
+    }
+  );
 
   useEffect(() => {
     if (lastMessage === null) {
@@ -113,12 +124,77 @@ export default function App() {
     setMessageHistory((prev) => [lastMessage, ...prev]);
   }, [lastMessage]);
 
+  const handleConnect = useCallback(
+    (url: string) => {
+      // Validate WebSocket URL with regex
+      const wsUrlRegex =
+        /^(wss?:\/\/)([0-9]{1,3}(?:\.[0-9]{1,3}){3}|[^/]+):([0-9]{1,5})$/;
+
+      if (!wsUrlRegex.test(url.trim())) {
+        setUrlError(
+          "Invalid WebSocket URL format. Expected: ws://hostname:port or wss://hostname:port"
+        );
+        setIsConnected(false); // Ensure we're in disconnected state
+        return;
+      }
+
+      // Validate port range
+      const portMatch = url.match(/:([0-9]{1,5})$/);
+      if (portMatch) {
+        const port = parseInt(portMatch[1]);
+        if (port < 1 || port > 65535) {
+          setUrlError("Port must be between 1 and 65535");
+          setIsConnected(false); // Ensure we're in disconnected state
+          return;
+        }
+      }
+
+      // Clear any previous error and connect
+      setUrlError("");
+
+      // If we're trying to connect to the same URL, we need to force a reconnection
+      // by briefly disconnecting and then reconnecting
+      if (socketUrl === url.trim() && isConnected) {
+        setIsConnected(false);
+        // Use setTimeout to ensure the disconnection is processed before reconnecting
+        setTimeout(() => {
+          setSocketUrl(url.trim());
+          setIsConnected(true);
+        }, 10);
+      } else {
+        setSocketUrl(url.trim());
+        setIsConnected(true);
+      }
+    },
+    [socketUrl, isConnected]
+  );
+
+  const handleDisconnect = useCallback(() => {
+    setIsConnected(false);
+    setUrlError(""); // Clear any URL errors when disconnecting
+  }, []);
+
+  const handleSubscribe = useCallback(
+    (name: string) => {
+      const message = { Type: "Subscribe", Content: name };
+      sendMessage(JSON.stringify(message));
+    },
+    [sendMessage]
+  );
+
   return (
-    <div className="p-8">
+    <div className="p-6">
       <Connection
         readyState={readyState}
         currentSocketUrl={socketUrl}
-        socketUrlChangedCallback={(url) => setSocketUrl(url)}
+        isConnected={isConnected}
+        urlError={urlError}
+        onConnect={handleConnect}
+        onDisconnect={handleDisconnect}
+      />
+      <SubscribeContainer
+        activeSubscriptions={activeSubscriptions}
+        onSubscribe={handleSubscribe}
       />
       <div className="mb-2">
         <SendMessage
