@@ -7,12 +7,14 @@ export interface AudioStripProps {
   audioObject: ComposerAudioObject;
   setCurrentSelectionFn: (props: UniqueSelection) => void;
   layout?: "horizontal" | "vertical" | "grid";
+  currentSelection?: UniqueSelection;
 }
 
 export const AudioStrip = ({
   audioObject,
   setCurrentSelectionFn,
   layout,
+  currentSelection,
 }: AudioStripProps) => {
   let ContentLayout;
   if (layout === "vertical") {
@@ -36,6 +38,7 @@ export const AudioStrip = ({
       <ContentLayout
         audioObject={audioObject}
         setCurrentSelectionFn={setCurrentSelectionFn}
+        currentSelection={currentSelection}
       />
     </div>
   );

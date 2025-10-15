@@ -88,6 +88,14 @@ export default function App() {
   const [errorText, setErrorText] = useState<string>("");
   const [audioStrips, setAudioStrips] = useState<ComposerAudioObject[]>();
   const [currentSelection, setCurrentSelection] = useState<UniqueSelection>();
+
+  // Immediate selection update for UI responsiveness
+  const handleSetCurrentSelection = useCallback(
+    (selection: UniqueSelection) => {
+      setCurrentSelection(() => selection);
+    },
+    []
+  );
   const [audioStripsLayout, setAudioStripsLayout] = useState<string | null>(
     "grid"
   );
@@ -171,7 +179,7 @@ export default function App() {
             {audioStrips && audioStrips.length > 0 ? (
               <AudioStrips
                 audioStrips={audioStrips}
-                setCurrentSelectionFn={setCurrentSelection}
+                setCurrentSelectionFn={handleSetCurrentSelection}
                 layout={
                   audioStripsLayout === "grid"
                     ? "grid"
@@ -179,6 +187,7 @@ export default function App() {
                     ? "horizontal"
                     : "vertical"
                 }
+                currentSelection={currentSelection}
               />
             ) : (
               <div>
