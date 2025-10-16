@@ -44,7 +44,7 @@ export const WebsocketMessage = ({
           <div className="justify-end">{prettyTime}</div>
         </div>
       )}
-      <pre className="mb-2 ">{prettyPrint ? prettyContent : message.data}</pre>
+      <pre>{prettyPrint ? prettyContent : message.data}</pre>
     </Box>
   );
 };

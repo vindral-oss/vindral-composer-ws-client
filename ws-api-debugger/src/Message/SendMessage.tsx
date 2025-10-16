@@ -1,9 +1,8 @@
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Button from "@mui/material/Button";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import type { SendMessage as SendMessageFn } from "react-use-websocket";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
@@ -12,20 +11,16 @@ import type { ComposerAudioObject } from "../App";
 import type { ComposerProperty } from "../App";
 import Fab from "@mui/material/Fab";
 
+export interface Message {
+  Type: string;
+  Content: string;
+}
 export interface SendMessageProps {
   audioStrips: ComposerAudioObject[];
-  clickSelectedAudioStrip?: string;
-  clickSelectedId?: string;
-  clickSelectedProperty?: string;
-  sendMessageFn: SendMessageFn;
+  sendMessageFn: (message: Message) => void;
 }
 
-export function SendMessage({
-  audioStrips,
-  clickSelectedAudioStrip,
-  clickSelectedProperty,
-  sendMessageFn,
-}: SendMessageProps) {
+export function SendMessage({ audioStrips, sendMessageFn }: SendMessageProps) {
   const [propertyValue, setPropertyValue] = useState<string>("");
   const [selectedAudioStripName, setSelectedAudioStripName] =
     useState<string>("");
@@ -54,21 +49,6 @@ export function SendMessage({
 
   // Format the message as pretty JSON for display
   const messagePreview = JSON.stringify(messageObject, null, 2);
-
-  useEffect(() => {
-    if (!clickSelectedAudioStrip) {
-      return;
-    } else {
-      setSelectedAudioStripName(clickSelectedAudioStrip);
-    }
-  }, [clickSelectedAudioStrip]);
-
-  useEffect(() => {
-    if (!clickSelectedProperty) {
-      return;
-    }
-    setSelectedPropertyName(clickSelectedProperty);
-  }, [clickSelectedProperty]);
 
   return (
     <Box component="section" className="mb-8">
@@ -187,7 +167,7 @@ export function SendMessage({
                   Value: propertyValue,
                 }),
               };
-              sendMessageFn(JSON.stringify(updatedMessage));
+              sendMessageFn(updatedMessage);
             }}
             disabled={
               !selectedAudioStripId || !selectedPropertyName || !propertyValue
