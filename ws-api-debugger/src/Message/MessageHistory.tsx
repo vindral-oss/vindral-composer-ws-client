@@ -8,6 +8,7 @@ export interface MessageHistoryProps {
   clearMessages: () => void;
   paused: boolean;
   setPaused: (value: boolean) => void;
+  isSubscribed?: boolean;
 }
 
 export const MessageHistory = ({
@@ -15,6 +16,7 @@ export const MessageHistory = ({
   clearMessages,
   paused,
   setPaused,
+  isSubscribed = true,
 }: MessageHistoryProps) => {
   const [prettyPrint, setPrettyPrint] = useState<boolean>(true);
   const [maxMessages, setMaxMessages] = useState<number>(20);
@@ -62,7 +64,8 @@ export const MessageHistory = ({
           paused={paused}
           setPaused={setPaused}
           queuedCount={paused ? messages.length - renderedMessages.length : 0}
-          clearDisabled={paused}
+          clearDisabled={messages.length === 0}
+          pauseDisabled={!isSubscribed}
         />
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto px-1">

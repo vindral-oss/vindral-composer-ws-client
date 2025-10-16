@@ -21,6 +21,7 @@ export interface MessageControlProps {
   setPaused: (value: boolean) => void;
   queuedCount?: number;
   clearDisabled?: boolean;
+  pauseDisabled?: boolean;
 }
 
 export const MessageControl: React.FC<MessageControlProps> = ({
@@ -35,6 +36,7 @@ export const MessageControl: React.FC<MessageControlProps> = ({
   setPaused,
   queuedCount = 0,
   clearDisabled = false,
+  pauseDisabled = false,
 }) => {
   return (
     <div className="flex gap-x-2 items-center">
@@ -78,7 +80,7 @@ export const MessageControl: React.FC<MessageControlProps> = ({
           <IconButton
             aria-label={paused ? "Resume updates" : "Pause updates"}
             onClick={() => setPaused(!paused)}
-            disabled={false}
+            disabled={pauseDisabled}
             sx={{
               backgroundColor: paused ? "#ff9800" : "#ff9800",
               color: paused ? "#fff" : "#fff",

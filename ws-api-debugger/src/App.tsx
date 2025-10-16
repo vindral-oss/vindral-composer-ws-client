@@ -224,6 +224,7 @@ export default function App() {
               messages={messageHistory}
               paused={pausedIncoming}
               setPaused={setPausedIncoming}
+              isSubscribed={activeSubscriptions.length > 0}
             />
           </div>
         </div>
@@ -239,6 +240,7 @@ export default function App() {
               messages={sentMessageHistory}
               paused={pausedOutgoing}
               setPaused={setPausedOutgoing}
+              isSubscribed={activeSubscriptions.length > 0}
             />
           </div>
         </div>

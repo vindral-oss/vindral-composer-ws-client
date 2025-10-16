@@ -11,6 +11,8 @@ import Switch from "@mui/material/Switch";
 import type { ComposerAudioObject } from "../App";
 import type { ComposerProperty } from "../App";
 import Fab from "@mui/material/Fab";
+import Snackbar from "@mui/material/Snackbar";
+import { EnumPopover } from "./EnumPopover";
 import { EnumTypeScraper, type EnumTypeInfo } from "./EnumTypeScraper";
 
 export interface Message {
@@ -109,6 +111,12 @@ export function SendMessage({
 
   const messagePreview = JSON.stringify(messageObject, null, 2);
 
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleCopy = (_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    navigator.clipboard.writeText(messagePreview);
+    setSnackbarOpen(true);
+  };
   return (
     <Box component="section" className="mb-8">
       <div className="grid grid-cols-2 gap-4 items-start">
@@ -270,26 +278,18 @@ export function SendMessage({
                 />
               );
             })()}
-            {/* Show type as a link to Composer doxygen if enum */}
-            {selectedPropertyObject?.PropertyType &&
-              enumTypeInfo &&
-              enumTypeInfo.href && (
-                <a
-                  href={enumTypeInfo.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-2 text-xs text-orange-600 underline hover:text-orange-800"
-                >
-                  {selectedPropertyObject.PropertyType}
-                </a>
-              )}
+            {/* Show type as a link to Composer doxygen if enum, with popover iframe on click */}
+            {selectedPropertyObject?.PropertyType && enumTypeInfo?.href && (
+              <EnumPopover
+                href={enumTypeInfo.href}
+                typeName={selectedPropertyObject?.PropertyType || "Type"}
+              />
+            )}
           </div>
         </div>
         <div className="relative flex flex-col pt-1 h-full">
           <Fab
-            onClick={() => {
-              navigator.clipboard.writeText(messagePreview);
-            }}
+            onClick={(e) => handleCopy(e)}
             className="!absolute top-2 right-2 z-10"
             aria-label="Copy JSON"
             size="small"
@@ -304,6 +304,13 @@ export function SendMessage({
           >
             <ContentCopyIcon fontSize="small" />
           </Fab>
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={2000}
+            onClose={() => setSnackbarOpen(false)}
+            message="Copied to clipboard!"
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          />
           <pre
             className="bg-gray-100 rounded p-4 mr-1 min-h-[168px] text-xs overflow-auto mb-4 relative"
             id="message-content-preview"
