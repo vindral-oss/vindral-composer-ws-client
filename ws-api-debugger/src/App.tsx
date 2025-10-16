@@ -1,12 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import useWebSocket from "react-use-websocket";
-import { Connection } from "./Connection/ConnectionContainer";
+import { Connection } from "./Connection/Connection";
 import { MessageHistory } from "./Message/MessageHistory";
 import { SendMessage, type Message } from "./Message/SendMessage";
-import {
-  SubscribeContainer,
-  type Subscription,
-} from "./Message/SubscribeContainer";
+import { SubscribeContainer, type Subscription } from "./Message/Subscribe";
 import { Card, CardContent } from "@mui/material";
 
 export interface ComposerAudioObject {

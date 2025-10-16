@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import { MessageControl } from "./MessageControl";
 import { WebsocketMessage } from "./WebsocketMessage";
@@ -22,7 +22,6 @@ export const MessageHistory = ({
   const [renderedMessages, setRenderedMessages] =
     useState<MessageEvent<unknown>[]>(messages);
 
-  // Update renderedMessages only when not paused
   useEffect(() => {
     if (!paused) {
       setRenderedMessages(messages);
@@ -79,5 +78,3 @@ export const MessageHistory = ({
     </Box>
   );
 };
-
-// export const MemoizedMessageHistory = React.memo(MessageHistory);
