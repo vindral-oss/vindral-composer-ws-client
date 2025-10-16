@@ -24,18 +24,10 @@ export type ComposerProperty = {
   ValueEnum?: "string";
 };
 
-// export interface UniqueSelection {
-//   AudioStripName: string;
-//   PropertyId: string;
-//   PropertyName: string;
-// }
-
 const extractAudioStrips = (response: unknown): ComposerAudioObject[] => {
   const parsedContent = JSON.parse(response as string);
   const content = JSON.parse(parsedContent.Content);
 
-  console.log("Audio strips");
-  console.log(content);
   return Object.keys(content).map((k) => content[k])[0];
 };
 
@@ -53,12 +45,11 @@ export default function App() {
   const [activeSubscriptions, setActiveSubscriptions] = useState<
     Subscription[]
   >([]);
-  // PAUSE state for incoming and outgoing
   const [pausedIncoming, setPausedIncoming] = useState<boolean>(false);
   const [pausedOutgoing, setPausedOutgoing] = useState<boolean>(false);
 
   const { sendMessage, lastMessage, readyState } = useWebSocket(
-    isConnected ? socketUrl : null, // Only connect when isConnected is true
+    isConnected ? socketUrl : null,
     {
       shouldReconnect: () => false,
 
@@ -76,6 +67,10 @@ export default function App() {
 
       onMessage: (message) => {
         const parsedJson = JSON.parse(message.data);
+        if (parsedJson.Content === "unsubscribed from audio mixer") {
+          setActiveSubscriptions([]);
+          setAudioStrips([]);
+        }
         if (parsedJson.Type === "PropertyChanged") {
           setMessageHistory((prev) => [message, ...prev]);
         } else if (parsedJson.Type === "AudioMixerSummary") {
@@ -92,7 +87,6 @@ export default function App() {
       },
 
       onClose: () => {
-        // setMessageHistory([]);
         setAudioStrips([]);
         setIsConnected(false);
       },
@@ -109,7 +103,6 @@ export default function App() {
 
   const handleConnect = useCallback(
     (url: string) => {
-      // Validate WebSocket URL with regex
       const wsUrlRegex =
         /^(wss?:\/\/)([0-9]{1,3}(?:\.[0-9]{1,3}){3}|[^/]+):([0-9]{1,5})$/;
 
@@ -162,7 +155,7 @@ export default function App() {
   };
 
   const handleUnsubscribe = (name: string) => {
-    const message = { Type: "Unsubscribe", Content: name };
+    const message = { Type: "Unsubscribe", Content: name.toLowerCase() };
     handleSendMessage(message);
   };
 
@@ -211,6 +204,11 @@ export default function App() {
             <SendMessage
               sendMessageFn={handleSendMessage}
               audioStrips={audioStrips || []}
+              resetKey={
+                activeSubscriptions.length +
+                "-" +
+                (audioStrips ? audioStrips.length : 0)
+              }
             />
           </div>
         </div>

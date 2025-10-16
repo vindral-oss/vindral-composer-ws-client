@@ -20,9 +20,14 @@ export interface Message {
 export interface SendMessageProps {
   audioStrips: ComposerAudioObject[];
   sendMessageFn: (message: Message) => void;
+  resetKey?: string | number;
 }
 
-export function SendMessage({ audioStrips, sendMessageFn }: SendMessageProps) {
+export function SendMessage({
+  audioStrips,
+  sendMessageFn,
+  resetKey,
+}: SendMessageProps) {
   const [propertyValue, setPropertyValue] = useState<string>("");
   const [selectedAudioStripName, setSelectedAudioStripName] =
     useState<string>("");
@@ -35,16 +40,21 @@ export function SendMessage({ audioStrips, sendMessageFn }: SendMessageProps) {
   const [enumTypeInfo, setEnumTypeInfo] = useState<EnumTypeInfo | null>(null);
   const [enumLoading, setEnumLoading] = useState(false);
 
-  // Reset propertyValue when property changes
   useEffect(() => {
     setPropertyValue("");
   }, [selectedPropertyName, selectedPropertyObject]);
 
-  // Get the selected audio strip ID
+  useEffect(() => {
+    setPropertyValue("");
+    setSelectedAudioStripName("");
+    setSelectedPropertyName("");
+    setSelectedPropertyObject(undefined);
+    setEnumTypeInfo(null);
+  }, [resetKey]);
+
   const selectedAudioStripId =
     selectedAudioStripObject.length > 0 ? selectedAudioStripObject[0].Id : "";
 
-  // Build the message object
   const messageObject = {
     Type: "SetPropertyValueByObjectId",
     Content: JSON.stringify(
@@ -67,7 +77,7 @@ export function SendMessage({ audioStrips, sendMessageFn }: SendMessageProps) {
     }
   }, [selectedAudioStripObject, selectedPropertyName]);
 
-  // Helper to determine type
+  // Helper to determine type from Composer type
   const getTSTypeFromObjectTypeString = (type: string) => {
     switch (type) {
       case "Single":
@@ -77,12 +87,11 @@ export function SendMessage({ audioStrips, sendMessageFn }: SendMessageProps) {
       case "string":
         return "string";
       default:
-        console.log("Its an enum!?");
         return "enum";
     }
   };
 
-  // Fetch enum info when needed
+  // Fetch enum info for a Composer property type - when needed
   useEffect(() => {
     const type = selectedPropertyObject?.PropertyType || "";
     const tsType = getTSTypeFromObjectTypeString(type);
@@ -91,7 +100,6 @@ export function SendMessage({ audioStrips, sendMessageFn }: SendMessageProps) {
       EnumTypeScraper.fetchEnumInfo(type).then((info) => {
         setEnumTypeInfo(info);
         setEnumLoading(false);
-        console.log("Fetched enum info:", info);
       });
     } else {
       setEnumTypeInfo(null);
@@ -99,7 +107,6 @@ export function SendMessage({ audioStrips, sendMessageFn }: SendMessageProps) {
     }
   }, [selectedPropertyObject?.PropertyType]);
 
-  // Format the message as pretty JSON for display
   const messagePreview = JSON.stringify(messageObject, null, 2);
 
   return (
@@ -238,7 +245,7 @@ export function SendMessage({ audioStrips, sendMessageFn }: SendMessageProps) {
                     </FormControl>
                   );
                 }
-                // fallback if no values
+                // fallback if no values (i.e single = int)
                 return (
                   <TextField
                     fullWidth
@@ -251,7 +258,6 @@ export function SendMessage({ audioStrips, sendMessageFn }: SendMessageProps) {
                   />
                 );
               }
-              // fallback
               return (
                 <TextField
                   fullWidth
@@ -264,7 +270,7 @@ export function SendMessage({ audioStrips, sendMessageFn }: SendMessageProps) {
                 />
               );
             })()}
-            {/* Show type as a link if enum */}
+            {/* Show type as a link to Composer doxygen if enum */}
             {selectedPropertyObject?.PropertyType &&
               enumTypeInfo &&
               enumTypeInfo.href && (
@@ -272,14 +278,13 @@ export function SendMessage({ audioStrips, sendMessageFn }: SendMessageProps) {
                   href={enumTypeInfo.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="ml-2 text-xs text-orange-600 underline"
+                  className="ml-2 text-xs text-orange-600 underline hover:text-orange-800"
                 >
                   {selectedPropertyObject.PropertyType}
                 </a>
               )}
           </div>
         </div>
-        {/* Right column: content preview + button */}
         <div className="relative flex flex-col pt-1 h-full">
           <Fab
             onClick={() => {
