@@ -27,9 +27,18 @@ export const MessageHistory = ({
   useEffect(() => {
     if (!paused) {
       setRenderedMessages(messages);
+    } else if (messages.length === 0) {
+      // If messages array is cleared (empty), always update renderedMessages
+      // This ensures the clear button works even when paused
+      setRenderedMessages([]);
     }
-    // If paused, do not update renderedMessages
   }, [messages, paused]);
+
+  // Custom clear function that clears both parent messages and local rendered messages
+  const handleClearMessages = () => {
+    clearMessages(); // Clear parent messages
+    setRenderedMessages([]); // Clear local rendered messages immediately
+  };
 
   const filteredMessages = renderedMessages
     .filter((message) => {
@@ -60,7 +69,7 @@ export const MessageHistory = ({
           setFilter={setFilter}
           maxMessages={maxMessages}
           setMaxMessages={setMaxMessages}
-          clearMessages={clearMessages}
+          clearMessages={handleClearMessages}
           paused={paused}
           setPaused={setPaused}
           queuedCount={paused ? messages.length - renderedMessages.length : 0}
