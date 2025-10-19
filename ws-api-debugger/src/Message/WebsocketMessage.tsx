@@ -15,6 +15,7 @@ export const WebsocketMessage = ({
   if (message.data) {
     json = JSON.parse(message.data);
     if (json.Content) {
+      // If Composer message data has JSON content, parse it for pretty printing
       if ((json.Content as string).includes("{")) {
         content = json.Content;
         content = json.Content.replaceAll(/\n/g, "");
@@ -44,7 +45,7 @@ export const WebsocketMessage = ({
           <div className="justify-end">{prettyTime}</div>
         </div>
       )}
-      <pre className="mb-2 ">{prettyPrint ? prettyContent : message.data}</pre>
+      <pre>{prettyPrint ? prettyContent : message.data}</pre>
     </Box>
   );
 };
