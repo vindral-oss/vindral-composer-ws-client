@@ -28,45 +28,23 @@ For Composer Desktop, make the necessary changes in the `Settings` -> `Web API` 
 > [!NOTE]
 > This is just an early example of the initial feature set of the Composer WebSocket API. More features will be added later.
 
-## Startup
+This is a web-based companion app to showcase the features of Vindral composer's WebSocket API.
+It only supports the AudioMixer channel for now.
 
-- It will connect to the specified `Websocket URL`
-- It will automatically subscribe to `AudioMixer` events (the only events available, as of today).
-- It will automatically extract each available `Audio Strip` and its properties
+After subscribing; Composer will send a full list of available properties (read-only and writeable).
 
-## Left drawer
+# Sending messages
 
-The left drawer allows the user to change;
+After subscribing, the application will extract all available `Audio strips` from the running Composer project and filter out properties that have `Can Write: true`.
 
-- `Websocket URL`
-- The output (printing) format of incoming messages (either raw or `Pretty`)
-- Set a message history `Limit`
-- Filter incoming messages
-- Send messages
+To send a message;
 
-## Sending messages
+1. Select the audio strip
+2. Select the property
+3. Supply the value
 
-There are two ways to send messages - both ways will programmatically build and show the exact formatted string that is is sent to the WebSocket.
+When constructing the message, the code block will highlight the resulting message to make it easy to copy and paste the message structure.
 
-### Manually constructing the message object
+## Incoming/Outgoing messages
 
-Messages can be constructred by selecting any available `Audio Strip` and `Property` from the dropdowns and proving a new `Value`.
-
-### Click any writeable property Name
-
-Click on any _Writeable_ property's _Name_ in either `Audio Strip` table to pre-populate the dropdowns. Then supply a value.
-
-### Message format
-
-The `Update property value` message format is:
-
-```
-{
-    "Type": "SetPropertyValueByObjectId",
-    "Content": "{
-        \"ObjectId\": \"<audio-strip-id>\",
-        \"PropertyName\": \"<audio-strip-property-name>\",
-        \"Value\": \"<audio-strip-value>\",
-    }"
-}
-```
+View and filter all incoming and outgoing (sent) messages. Pausing any message channel will queue messages until resumed.
