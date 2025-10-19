@@ -70,6 +70,13 @@ export default function App() {
         if (parsedJson.Content === "unsubscribed from audio mixer") {
           setActiveSubscriptions([]);
           setAudioStrips([]);
+
+          // When unsubscribing, if there are queued messages:
+          // - Push queued messages to the message windows (unpause)
+          // - Enable the clear button (by ensuring messages are visible)
+          // - Set play/pause status to playing (unpause)
+          setPausedIncoming(false);
+          setPausedOutgoing(false);
         }
         if (parsedJson.Type === "PropertyChanged") {
           setMessageHistory((prev) => [message, ...prev]);
