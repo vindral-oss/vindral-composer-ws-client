@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { ReadyState } from "react-use-websocket";
 import { ConnectionStatusIndicator } from "./ConnectionStatusIndicator";
 import {
@@ -32,7 +32,7 @@ export const Connection = ({
     useState<string>(currentSocketUrl);
 
   // Sync input with current socket URL when it changes
-  React.useEffect(() => {
+  useEffect(() => {
     setInputSocketUrl(currentSocketUrl);
   }, [currentSocketUrl]);
 

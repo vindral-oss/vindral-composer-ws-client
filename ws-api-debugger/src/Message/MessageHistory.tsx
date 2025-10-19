@@ -19,7 +19,7 @@ export const MessageHistory = ({
   isSubscribed = true,
 }: MessageHistoryProps) => {
   const [prettyPrint, setPrettyPrint] = useState<boolean>(true);
-  const [maxMessages, setMaxMessages] = useState<number>(20);
+  const [maxMessages, setMaxMessages] = useState<number>(100);
   const [filter, setFilter] = useState<string>("");
   const [renderedMessages, setRenderedMessages] =
     useState<MessageEvent<unknown>[]>(messages);
@@ -29,7 +29,6 @@ export const MessageHistory = ({
       setRenderedMessages(messages);
     } else if (messages.length === 0) {
       // If messages array is cleared (empty), always update renderedMessages
-      // This ensures the clear button works even when paused
       setRenderedMessages([]);
     }
   }, [messages, paused]);

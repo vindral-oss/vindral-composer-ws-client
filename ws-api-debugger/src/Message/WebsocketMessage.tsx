@@ -15,6 +15,7 @@ export const WebsocketMessage = ({
   if (message.data) {
     json = JSON.parse(message.data);
     if (json.Content) {
+      // If Composer message data has JSON content, parse it for pretty printing
       if ((json.Content as string).includes("{")) {
         content = json.Content;
         content = json.Content.replaceAll(/\n/g, "");

@@ -9,6 +9,10 @@ interface EnumPopoverProps {
   typeName: string;
 }
 
+/**
+ * Shows the enum documentation in a popover iframe when clicked.
+ * The enum values are extracted from the public API docs.
+ */
 export function EnumPopover({ href, typeName }: EnumPopoverProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [open, setOpen] = useState(false);

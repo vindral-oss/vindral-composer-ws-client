@@ -5,7 +5,9 @@ export interface EnumTypeInfo {
 
 /**
  * Scrapes the Vindral Composer doxygen documentation to find enum details.
- * This is a best-effort approach and may break if the doxygen structure changes.
+ * Since the Composer TYPE has a corresponding ENUM with values; we need to find the type info,
+ * combine into a full link (to be able to anchor link to the corresponding ID, not name), then 
+ * scrape the enum values from the documentation to populate the select options.
  */
 export class EnumTypeScraper {
   static DOXYGEN_URL =
@@ -15,7 +17,9 @@ export class EnumTypeScraper {
     try {
       const res = await fetch(EnumTypeScraper.DOXYGEN_URL);
       const html = await res.text();
+
       // Find the anchor for the enum
+      // Credits to CoPilot for the regex help here :)
       const anchorRegex = new RegExp(
         `<a[^>]+href=["'](#.*?)['"][^>]*>(?:\\s*)${enumName}(?:\\s*)<\\/a>`,
         "i"
@@ -59,6 +63,7 @@ export class EnumTypeScraper {
                 const cells = row.querySelectorAll('td');
                 if (cells.length >= 3) {
                   return {
+                    // Remove &nbsp; and trim
                     name: cells[0].textContent?.replace(/\u00a0/g, '').trim() || "",
                     value: cells[1].textContent?.replace(/\u00a0/g, '').trim() || "",
                     description: cells[2].textContent?.replace(/\u00a0/g, '').trim() || "",
@@ -77,7 +82,8 @@ export class EnumTypeScraper {
         values: [],
       };
     } catch {
-      // Yeah this is crazy town, since we're regex:ing HTML without a DOM parser :)
+      // Yeah this is crazy town, since we're regex:ing HTML. 
+      // https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454
       return null;
     }
   }

@@ -12,8 +12,11 @@ import type { ComposerAudioObject } from "../App";
 import type { ComposerProperty } from "../App";
 import Fab from "@mui/material/Fab";
 import Snackbar from "@mui/material/Snackbar";
-import { EnumPopover } from "./EnumPopover";
-import { EnumTypeScraper, type EnumTypeInfo } from "./EnumTypeScraper";
+import { EnumPopover } from "../DocsScraper/EnumPopover";
+import {
+  EnumTypeScraper,
+  type EnumTypeInfo,
+} from "../DocsScraper/EnumTypeScraper";
 
 export interface Message {
   Type: string;
@@ -57,6 +60,7 @@ export function SendMessage({
   const selectedAudioStripId =
     selectedAudioStripObject.length > 0 ? selectedAudioStripObject[0].Id : "";
 
+  // Construct the message template object to send (based on select choices)
   const messageObject = {
     Type: "SetPropertyValueByObjectId",
     Content: JSON.stringify(
@@ -70,6 +74,7 @@ export function SendMessage({
     ),
   };
 
+  // Update selected property object when audio strip or property name changes
   useEffect(() => {
     if (selectedAudioStripObject.length === 1 && selectedPropertyName !== "") {
       const prop = selectedAudioStripObject[0].Properties.filter(
@@ -79,9 +84,10 @@ export function SendMessage({
     }
   }, [selectedAudioStripObject, selectedPropertyName]);
 
-  // Helper to determine type from Composer type
+  // Helper to determine TS type from Composer type
   const getTSTypeFromObjectTypeString = (type: string) => {
     switch (type) {
+      // Might be int or float, but treat both as number for input purposes
       case "Single":
         return "number";
       case "Boolean":
@@ -120,7 +126,7 @@ export function SendMessage({
   return (
     <Box component="section" className="mb-8">
       <div className="grid grid-cols-2 gap-4 items-start">
-        {/* Left column: controls */}
+        {/* Left column: select choices */}
         <div>
           <FormControl
             sx={{ padding: "6px 0", margin: "" }}

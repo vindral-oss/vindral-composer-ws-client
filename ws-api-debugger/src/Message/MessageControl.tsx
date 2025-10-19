@@ -62,10 +62,6 @@ export const MessageControl: React.FC<MessageControlProps> = ({
         InputProps={{
           startAdornment: <InputAdornment position="start">max</InputAdornment>,
         }}
-        inputProps={{
-          max: 10000,
-          min: 1,
-        }}
         label="Message history"
         onChange={(e) => {
           const raw = e.target.value;

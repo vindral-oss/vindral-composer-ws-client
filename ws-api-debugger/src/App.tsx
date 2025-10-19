@@ -6,6 +6,14 @@ import { SendMessage, type Message } from "./Message/SendMessage";
 import { SubscribeContainer, type Subscription } from "./Message/Subscribe";
 import { Card, CardContent } from "@mui/material";
 
+export type ComposerProperty = {
+  PropertyDescription: string;
+  PropertyName: string;
+  PropertyType: string;
+  CanWrite: boolean;
+  Value: number | string;
+  ValueEnum?: "string";
+};
 export interface ComposerAudioObject {
   Id: string;
   Name: string;
@@ -15,15 +23,13 @@ export interface ComposerAudioObject {
   SelectedProperty?: string;
 }
 
-export type ComposerProperty = {
-  PropertyDescription: string;
-  PropertyName: string;
-  PropertyType: string;
-  CanWrite: boolean;
-  Value: number | string;
-  ValueEnum?: "string";
-};
-
+/** Extract audio strips from the WebSocket response
+ *
+ * The response data is a stringified JSON object with a Content field
+ * that is itself a stringified JSON object containing the audio strips.
+ *
+ * (Composer might send other types of content, so we need to parse accordingly.)
+ */
 const extractAudioStrips = (response: unknown): ComposerAudioObject[] => {
   const parsedContent = JSON.parse(response as string);
   const content = JSON.parse(parsedContent.Content);
@@ -67,19 +73,20 @@ export default function App() {
 
       onMessage: (message) => {
         const parsedJson = JSON.parse(message.data);
+
+        // Unsubscribe handling
         if (parsedJson.Content === "unsubscribed from audio mixer") {
           setActiveSubscriptions([]);
           setAudioStrips([]);
-
-          // When unsubscribing, if there are queued messages:
-          // - Push queued messages to the message windows (unpause)
-          // - Enable the clear button (by ensuring messages are visible)
-          // - Set play/pause status to playing (unpause)
           setPausedIncoming(false);
           setPausedOutgoing(false);
         }
+
+        // Property changed handling
         if (parsedJson.Type === "PropertyChanged") {
           setMessageHistory((prev) => [message, ...prev]);
+
+          // Audio mixer summary contains all available properties for that channel
         } else if (parsedJson.Type === "AudioMixerSummary") {
           setAudioStrips(extractAudioStrips(message.data));
           const subscriptionName = parsedJson.Content;
@@ -104,7 +111,6 @@ export default function App() {
     if (lastMessage === null) {
       return;
     }
-
     setMessageHistory((prev) => [lastMessage, ...prev]);
   }, [lastMessage]);
 
@@ -202,7 +208,7 @@ export default function App() {
       </Card>
 
       <div className="flex-1 min-h-0 grid grid-cols-3 gap-0 p-6 overflow-hidden">
-        {/* Send Column */}
+        {/* Column 1 - Send */}
         <div className="flex flex-col h-full min-h-0 pr-6 border-r border-gray-300">
           <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
             Send
@@ -220,7 +226,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* Incoming Column */}
+        {/* Column 2 - Incoming */}
         <div className="flex flex-col h-full min-h-0 px-6 border-r border-gray-300">
           <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
             Incoming
@@ -236,7 +242,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* Outgoing Column */}
+        {/* Column 3 - Outgoing */}
         <div className="flex flex-col h-full min-h-0 pl-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
             Outgoing
