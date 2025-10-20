@@ -93,6 +93,11 @@ export default function App() {
           }
           return [...prev, { Name: subscriptionName }];
         });
+      } else if (
+        parsedJson.Content ===
+        "Composer project cleared. Removing all subscribers."
+      ) {
+        handleUnsubscribe("AudioMixer");
       }
     },
 
