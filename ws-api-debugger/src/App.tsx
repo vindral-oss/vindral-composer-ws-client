@@ -82,12 +82,8 @@ export default function App() {
           setPausedOutgoing(false);
         }
 
-        // Property changed handling
-        if (parsedJson.Type === "PropertyChanged") {
-          setMessageHistory((prev) => [message, ...prev]);
-
-          // Audio mixer summary contains all available properties for that channel
-        } else if (parsedJson.Type === "AudioMixerSummary") {
+        // Audio mixer summary contains all available properties for that channel
+        else if (parsedJson.Type === "AudioMixerSummary") {
           setAudioStrips(extractAudioStrips(message.data));
           const subscriptionName = parsedJson.Content;
           setActiveSubscriptions((prev) => {
