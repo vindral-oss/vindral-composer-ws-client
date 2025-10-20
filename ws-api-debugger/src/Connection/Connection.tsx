@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ReadyState } from "react-use-websocket";
+import { ReadyState } from "react-use-websocket-lite";
 import { ConnectionStatusIndicator } from "./ConnectionStatusIndicator";
 import {
   TextField,

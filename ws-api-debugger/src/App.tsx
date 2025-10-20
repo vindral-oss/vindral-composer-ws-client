@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import useWebSocket from "react-use-websocket";
+import { useCallback, useState } from "react";
+import useWebSocket from "react-use-websocket-lite";
 import { Connection } from "./Connection/Connection";
 import { MessageHistory } from "./Message/MessageHistory";
 import { SendMessage, type Message } from "./Message/SendMessage";
@@ -54,61 +54,53 @@ export default function App() {
   const [pausedIncoming, setPausedIncoming] = useState<boolean>(false);
   const [pausedOutgoing, setPausedOutgoing] = useState<boolean>(false);
 
-  const { sendMessage, lastMessage, readyState } = useWebSocket(
-    isConnected ? socketUrl : null,
-    {
-      shouldReconnect: () => false,
+  const { sendMessage, readyState } = useWebSocket({
+    url: isConnected ? socketUrl : null,
+    connect: isConnected,
+    onOpen: () => {
+      setUrlError("");
+    },
 
-      onOpen: () => {
-        setUrlError("");
-      },
+    onError: (event) => {
+      console.error("WebSocket error observed:", event);
+      setUrlError(
+        `Unable to connect to ${socketUrl}. Server not responding or unreachable.`
+      );
+      setIsConnected(false);
+    },
 
-      onError: (event) => {
-        console.error("WebSocket error observed:", event);
-        setUrlError(
-          `Unable to connect to ${socketUrl}. Server not responding or unreachable.`
-        );
-        setIsConnected(false);
-      },
+    onMessage: (event) => {
+      setMessageHistory((prev) => [event, ...prev]);
 
-      onMessage: (message) => {
-        const parsedJson = JSON.parse(message.data);
+      const parsedJson = JSON.parse(event.data);
 
-        // Unsubscribe handling
-        if (parsedJson.Content === "unsubscribed from audio mixer") {
-          setActiveSubscriptions([]);
-          setAudioStrips([]);
-          setPausedIncoming(false);
-          setPausedOutgoing(false);
-        }
-
-        // Audio mixer summary contains all available properties for that channel
-        else if (parsedJson.Type === "AudioMixerSummary") {
-          setAudioStrips(extractAudioStrips(message.data));
-          const subscriptionName = parsedJson.Content;
-          setActiveSubscriptions((prev) => {
-            // Avoid duplicates
-            if (prev.some((sub) => sub.Name === subscriptionName)) {
-              return prev;
-            }
-            return [...prev, { Name: subscriptionName }];
-          });
-        }
-      },
-
-      onClose: () => {
+      // Unsubscribe handling
+      if (parsedJson.Content === "unsubscribed from audio mixer") {
+        setActiveSubscriptions([]);
         setAudioStrips([]);
-        setIsConnected(false);
-      },
-    }
-  );
+        setPausedIncoming(false);
+        setPausedOutgoing(false);
+      }
 
-  useEffect(() => {
-    if (lastMessage === null) {
-      return;
-    }
-    setMessageHistory((prev) => [lastMessage, ...prev]);
-  }, [lastMessage]);
+      // Audio mixer summary contains all available properties for that channel
+      else if (parsedJson.Type === "AudioMixerSummary") {
+        setAudioStrips(extractAudioStrips(event.data));
+        const subscriptionName = parsedJson.Content;
+        setActiveSubscriptions((prev) => {
+          // Avoid duplicates
+          if (prev.some((sub) => sub.Name === subscriptionName)) {
+            return prev;
+          }
+          return [...prev, { Name: subscriptionName }];
+        });
+      }
+    },
+
+    onClose: () => {
+      setAudioStrips([]);
+      setIsConnected(false);
+    },
+  });
 
   const handleConnect = useCallback(
     (url: string) => {
