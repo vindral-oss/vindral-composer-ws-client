@@ -144,22 +144,6 @@ export default function App() {
     [socketUrl, isConnected]
   );
 
-  const handleDisconnect = useCallback(() => {
-    setIsConnected(false);
-    setActiveSubscriptions([]);
-    setUrlError("");
-  }, []);
-
-  const handleSubscribe = (name: string) => {
-    const message = { Type: "Subscribe", Content: name };
-    handleSendMessage(message);
-  };
-
-  const handleUnsubscribe = (name: string) => {
-    const message = { Type: "Unsubscribe", Content: name.toLowerCase() };
-    handleSendMessage(message);
-  };
-
   const handleSendMessage = useCallback(
     (message: Message) => {
       const messageEvent = new MessageEvent("message", {
@@ -173,6 +157,23 @@ export default function App() {
     },
     [sendMessage]
   );
+
+  const handleDisconnect = () => {
+    setIsConnected(false);
+    handleUnsubscribe("AudioMixer");
+    setActiveSubscriptions([]);
+    setUrlError("");
+  };
+
+  const handleSubscribe = (name: string) => {
+    const message = { Type: "Subscribe", Content: name };
+    handleSendMessage(message);
+  };
+
+  const handleUnsubscribe = (name: string) => {
+    const message = { Type: "Unsubscribe", Content: name };
+    handleSendMessage(message);
+  };
 
   return (
     <div className="h-screen flex flex-col">
