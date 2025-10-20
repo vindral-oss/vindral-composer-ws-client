@@ -39,20 +39,21 @@ export const MessageHistory = ({
     setRenderedMessages([]); // Clear local rendered messages immediately
   };
 
-  const filteredMessages = renderedMessages
-    .filter((message) => {
-      if (!filter) return true;
-      const dataStr =
-        typeof message.data === "string"
-          ? message.data
-          : typeof message.data === "number"
-          ? message.data.toString()
-          : typeof message.data === "object" && message.data !== null
-          ? JSON.stringify(message.data)
-          : "";
-      return dataStr.toLowerCase().includes(filter.toLowerCase());
-    })
-    .slice(0, maxMessages);
+  // Optimize by slicing first, then filtering only if needed
+  const slicedMessages = renderedMessages.slice(0, maxMessages);
+  const filteredMessages = !filter
+    ? slicedMessages
+    : slicedMessages.filter((message) => {
+        const dataStr =
+          typeof message.data === "string"
+            ? message.data
+            : typeof message.data === "number"
+            ? message.data.toString()
+            : typeof message.data === "object" && message.data !== null
+            ? JSON.stringify(message.data)
+            : "";
+        return dataStr.toLowerCase().includes(filter.toLowerCase());
+      });
 
   return (
     <Box
