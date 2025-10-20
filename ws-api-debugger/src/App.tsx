@@ -158,6 +158,11 @@ export default function App() {
     [sendMessage]
   );
 
+  const handleUnsubscribe = (name: string) => {
+    const message = { Type: "Unsubscribe", Content: name };
+    handleSendMessage(message);
+  };
+
   const handleDisconnect = () => {
     setIsConnected(false);
     handleUnsubscribe("AudioMixer");
@@ -167,11 +172,6 @@ export default function App() {
 
   const handleSubscribe = (name: string) => {
     const message = { Type: "Subscribe", Content: name };
-    handleSendMessage(message);
-  };
-
-  const handleUnsubscribe = (name: string) => {
-    const message = { Type: "Unsubscribe", Content: name };
     handleSendMessage(message);
   };
 
