@@ -1,7 +1,8 @@
 import { useCallback, useState } from "react";
 import useWebSocket from "react-use-websocket-lite";
 import { Connection } from "./Connection/Connection";
-import { MessageHistory } from "./Message/MessageHistory";
+import IncomingMessages from "./Message/IncomingMessages";
+import OutgoingMessages from "./Message/OutgoingMessages";
 import { SendMessage, type Message } from "./Message/SendMessage";
 import { SubscribeContainer, type Subscription } from "./Message/Subscribe";
 import { Card, CardContent } from "@mui/material";
@@ -43,16 +44,13 @@ export default function App() {
   const [socketUrl, setSocketUrl] = useState(WS_URL);
   const [isConnected, setIsConnected] = useState(false);
   const [audioStrips, setAudioStrips] = useState<ComposerAudioObject[]>();
-  const [messageHistory, setMessageHistory] = useState<MessageEvent[]>([]);
-  const [sentMessageHistory, setSentMessageHistory] = useState<MessageEvent[]>(
-    []
-  );
   const [urlError, setUrlError] = useState<string>("");
   const [activeSubscriptions, setActiveSubscriptions] = useState<
     Subscription[]
   >([]);
   const [pausedIncoming, setPausedIncoming] = useState<boolean>(false);
   const [pausedOutgoing, setPausedOutgoing] = useState<boolean>(false);
+  const [sendResetKey, setSendResetKey] = useState(0);
 
   const { sendMessage, readyState } = useWebSocket({
     url: isConnected ? socketUrl : null,
@@ -70,21 +68,31 @@ export default function App() {
     },
 
     onMessage: (event) => {
-      setMessageHistory((prev) => [event, ...prev]);
-
+      const win = window as unknown as {
+        handleIncomingMessage?: (event: MessageEvent) => void;
+      };
+      if (win.handleIncomingMessage) {
+        win.handleIncomingMessage(event);
+      }
       const parsedJson = JSON.parse(event.data);
-
       // Unsubscribe handling
       if (parsedJson.Content === "unsubscribed from audio mixer") {
         setActiveSubscriptions([]);
         setAudioStrips([]);
         setPausedIncoming(false);
         setPausedOutgoing(false);
+        setSendResetKey((prev) => prev + 1); // trigger SendMessage reset
       }
-
       // Audio mixer summary contains all available properties for that channel
       else if (parsedJson.Type === "AudioMixerSummary") {
-        setAudioStrips(extractAudioStrips(event.data));
+        const newStrips = extractAudioStrips(event.data);
+        setAudioStrips((prev) => {
+          // Only update if contents actually changed
+          if (JSON.stringify(prev) !== JSON.stringify(newStrips)) {
+            return newStrips;
+          }
+          return prev;
+        });
         const subscriptionName = parsedJson.Content;
         setActiveSubscriptions((prev) => {
           // Avoid duplicates
@@ -93,6 +101,7 @@ export default function App() {
           }
           return [...prev, { Name: subscriptionName }];
         });
+        setSendResetKey((prev) => prev + 1); // trigger SendMessage reset
       } else if (
         parsedJson.Content ===
         "Composer project cleared. Removing all subscribers."
@@ -157,15 +166,21 @@ export default function App() {
           DateTime: new Date().toISOString(),
         }),
       });
-      setSentMessageHistory((prev) => [messageEvent, ...prev]);
+      const win = window as unknown as {
+        handleOutgoingMessage?: (event: MessageEvent) => void;
+      };
+      if (win.handleOutgoingMessage) {
+        win.handleOutgoingMessage(messageEvent);
+      }
       sendMessage(JSON.stringify(message));
     },
-    [sendMessage]
+    [sendMessage] // Only changes if sendMessage changes
   );
 
   const handleUnsubscribe = (name: string) => {
     const message = { Type: "Unsubscribe", Content: name };
     handleSendMessage(message);
+    setSendResetKey((prev) => prev + 1); // trigger SendMessage reset
   };
 
   const handleDisconnect = () => {
@@ -178,7 +193,31 @@ export default function App() {
   const handleSubscribe = (name: string) => {
     const message = { Type: "Subscribe", Content: name };
     handleSendMessage(message);
+    setSendResetKey((prev) => prev + 1); // trigger SendMessage reset
   };
+
+  // Memoized handler registration functions
+  const registerIncomingHandler = useCallback(
+    (handler: (event: MessageEvent) => void) => {
+      (
+        window as unknown as {
+          handleIncomingMessage?: (event: MessageEvent) => void;
+        }
+      ).handleIncomingMessage = handler;
+    },
+    []
+  );
+
+  const registerOutgoingHandler = useCallback(
+    (handler: (event: MessageEvent) => void) => {
+      (
+        window as unknown as {
+          handleOutgoingMessage?: (event: MessageEvent) => void;
+        }
+      ).handleOutgoingMessage = handler;
+    },
+    []
+  );
 
   return (
     <div className="h-screen flex flex-col">
@@ -211,46 +250,26 @@ export default function App() {
             <SendMessage
               sendMessageFn={handleSendMessage}
               audioStrips={audioStrips || []}
-              resetKey={
-                activeSubscriptions.length +
-                "-" +
-                (audioStrips ? audioStrips.length : 0)
-              }
+              resetKey={sendResetKey}
             />
           </div>
         </div>
 
         {/* Column 2 - Incoming */}
-        <div className="flex flex-col h-full min-h-0 px-6 border-r border-gray-300">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
-            Incoming
-          </h2>
-          <div className="flex-1 min-h-0 flex ">
-            <MessageHistory
-              clearMessages={() => setMessageHistory([])}
-              messages={messageHistory}
-              paused={pausedIncoming}
-              setPaused={setPausedIncoming}
-              isSubscribed={activeSubscriptions.length > 0}
-            />
-          </div>
-        </div>
+        <IncomingMessages
+          paused={pausedIncoming}
+          setPaused={setPausedIncoming}
+          isSubscribed={activeSubscriptions.length > 0}
+          registerHandler={registerIncomingHandler}
+        />
 
         {/* Column 3 - Outgoing */}
-        <div className="flex flex-col h-full min-h-0 pl-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
-            Outgoing
-          </h2>
-          <div className="flex-1 min-h-0 flex ">
-            <MessageHistory
-              clearMessages={() => setSentMessageHistory([])}
-              messages={sentMessageHistory}
-              paused={pausedOutgoing}
-              setPaused={setPausedOutgoing}
-              isSubscribed={activeSubscriptions.length > 0}
-            />
-          </div>
-        </div>
+        <OutgoingMessages
+          paused={pausedOutgoing}
+          setPaused={setPausedOutgoing}
+          isSubscribed={activeSubscriptions.length > 0}
+          registerHandler={registerOutgoingHandler}
+        />
       </div>
     </div>
   );

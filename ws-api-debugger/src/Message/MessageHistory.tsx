@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Box } from "@mui/material";
 import { MessageControl } from "./MessageControl";
 import { WebsocketMessage } from "./WebsocketMessage";
 
 export interface MessageHistoryProps {
-  messages: MessageEvent<unknown>[];
+  messages: MessageEvent<string>[];
   clearMessages: () => void;
   paused: boolean;
   setPaused: (value: boolean) => void;
@@ -19,39 +19,19 @@ export const MessageHistory = ({
   isSubscribed = true,
 }: MessageHistoryProps) => {
   const [prettyPrint, setPrettyPrint] = useState<boolean>(true);
-  const [maxMessages, setMaxMessages] = useState<number>(100);
+  const [maxMessages, setMaxMessages] = useState<number>(20);
   const [filter, setFilter] = useState<string>("");
-  const [renderedMessages, setRenderedMessages] =
-    useState<MessageEvent<unknown>[]>(messages);
 
-  useEffect(() => {
-    if (!paused) {
-      setRenderedMessages(messages);
-    } else if (messages.length === 0) {
-      // If messages array is cleared (empty), always update renderedMessages
-      setRenderedMessages([]);
-    }
-  }, [messages, paused]);
-
-  // Custom clear function that clears both parent messages and local rendered messages
+  // Custom clear function that clears parent messages
   const handleClearMessages = () => {
-    clearMessages(); // Clear parent messages
-    setRenderedMessages([]); // Clear local rendered messages immediately
+    clearMessages();
   };
 
-  // Optimize by slicing first, then filtering only if needed
-  const slicedMessages = renderedMessages.slice(0, maxMessages);
+  const slicedMessages = messages.slice(0, maxMessages);
   const filteredMessages = !filter
     ? slicedMessages
     : slicedMessages.filter((message) => {
-        const dataStr =
-          typeof message.data === "string"
-            ? message.data
-            : typeof message.data === "number"
-            ? message.data.toString()
-            : typeof message.data === "object" && message.data !== null
-            ? JSON.stringify(message.data)
-            : "";
+        const dataStr = message.data;
         return dataStr.toLowerCase().includes(filter.toLowerCase());
       });
 
@@ -62,20 +42,24 @@ export const MessageHistory = ({
       sx={{ height: "100%" }}
     >
       <div className="sticky top-0 bg-white z-10 pb-2">
-        <MessageControl
-          prettyPrint={prettyPrint}
-          setPrettyPrint={setPrettyPrint}
-          filter={filter}
-          setFilter={setFilter}
-          maxMessages={maxMessages}
-          setMaxMessages={setMaxMessages}
-          clearMessages={handleClearMessages}
-          paused={paused}
-          setPaused={setPaused}
-          queuedCount={paused ? messages.length - renderedMessages.length : 0}
-          clearDisabled={messages.length === 0}
-          pauseDisabled={!isSubscribed}
-        />
+        <div className="flex flex-wrap gap-2 items-center w-full">
+          <MessageControl
+            prettyPrint={prettyPrint}
+            setPrettyPrint={setPrettyPrint}
+            filter={filter}
+            setFilter={setFilter}
+            maxMessages={maxMessages}
+            setMaxMessages={setMaxMessages}
+            clearMessages={handleClearMessages}
+            paused={paused}
+            setPaused={setPaused}
+            queuedCount={
+              paused ? Math.max(0, messages.length - maxMessages) : 0
+            }
+            clearDisabled={messages.length === 0}
+            pauseDisabled={!isSubscribed}
+          />
+        </div>
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto px-1">
         {filteredMessages.map((message, idx) => (

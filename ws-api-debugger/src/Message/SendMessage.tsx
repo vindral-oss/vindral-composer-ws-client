@@ -1,6 +1,6 @@
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import FormControl from "@mui/material/FormControl";
@@ -22,13 +22,14 @@ export interface Message {
   Type: string;
   Content: string;
 }
+
 export interface SendMessageProps {
   audioStrips: ComposerAudioObject[];
   sendMessageFn: (message: Message) => void;
   resetKey?: string | number;
 }
 
-export function SendMessage({
+export const SendMessage = React.memo(function SendMessage({
   audioStrips,
   sendMessageFn,
   resetKey,
@@ -46,7 +47,14 @@ export function SendMessage({
   const [enumLoading, setEnumLoading] = useState(false);
 
   useEffect(() => {
-    setPropertyValue("");
+    // Allow sending boolean type message even though no input change
+    const type = selectedPropertyObject?.PropertyType || "";
+    const tsType = getTSTypeFromObjectTypeString(type);
+    if (tsType === "boolean") {
+      setPropertyValue("false");
+    } else {
+      setPropertyValue("");
+    }
   }, [selectedPropertyName, selectedPropertyObject]);
 
   useEffect(() => {
@@ -115,6 +123,13 @@ export function SendMessage({
     }
   }, [selectedPropertyObject?.PropertyType]);
 
+  // Set default value for enum type only when enumTypeInfo changes and propertyValue is empty
+  useEffect(() => {
+    if (enumTypeInfo && enumTypeInfo.values.length > 0 && !propertyValue) {
+      setPropertyValue(enumTypeInfo.values[0].value);
+    }
+  }, [enumTypeInfo, propertyValue]);
+
   const messagePreview = JSON.stringify(messageObject, null, 2);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -125,9 +140,9 @@ export function SendMessage({
   };
   return (
     <Box component="section" className="mb-8">
-      <div className="grid grid-cols-2 gap-4 items-start">
+      <div className="flex flex-wrap gap-4 items-start">
         {/* Left column: select choices */}
-        <div>
+        <div className="w-full">
           <FormControl
             sx={{ padding: "6px 0", margin: "" }}
             fullWidth
@@ -188,7 +203,7 @@ export function SendMessage({
                 )}
             </Select>
           </FormControl>
-          <div className="flex mt-2 gap-x-4 text-xs items-center">
+          <div className="flex flex-wrap mt-2 gap-x-4 text-xs items-start w-full">
             {/* Conditionally render value input based on type */}
             {(() => {
               const type = selectedPropertyObject?.PropertyType || "";
@@ -203,12 +218,13 @@ export function SendMessage({
                     variant="outlined"
                     onChange={(e) => setPropertyValue(e.target.value)}
                     value={propertyValue}
+                    sx={{ minWidth: 0, flex: 1 }}
                   />
                 );
               }
               if (tsType === "boolean") {
                 return (
-                  <FormControl fullWidth>
+                  <FormControl fullWidth sx={{ minWidth: 0, flex: 1 }}>
                     <InputLabel shrink htmlFor="value-switch">
                       Value
                     </InputLabel>
@@ -231,12 +247,8 @@ export function SendMessage({
                   );
                 }
                 if (enumTypeInfo && enumTypeInfo.values.length > 0) {
-                  // Set default value to first enum value if not set
-                  if (!propertyValue) {
-                    setPropertyValue(enumTypeInfo.values[0].value);
-                  }
                   return (
-                    <FormControl fullWidth>
+                    <FormControl fullWidth sx={{ minWidth: 0, flex: 1 }}>
                       <InputLabel id="enum-value-label">Value</InputLabel>
                       <Select
                         labelId="enum-value-label"
@@ -269,6 +281,7 @@ export function SendMessage({
                     variant="outlined"
                     onChange={(e) => setPropertyValue(e.target.value)}
                     value={propertyValue}
+                    sx={{ minWidth: 0, flex: 1 }}
                   />
                 );
               }
@@ -286,14 +299,16 @@ export function SendMessage({
             })()}
             {/* Show type as a link to Composer doxygen if enum, with popover iframe on click */}
             {selectedPropertyObject?.PropertyType && enumTypeInfo?.href && (
-              <EnumPopover
-                href={enumTypeInfo.href}
-                typeName={selectedPropertyObject?.PropertyType || "Type"}
-              />
+              <div className="w-full break-words mt-2">
+                <EnumPopover
+                  href={enumTypeInfo.href}
+                  typeName={selectedPropertyObject?.PropertyType || "Type"}
+                />
+              </div>
             )}
           </div>
         </div>
-        <div className="relative flex flex-col pt-1 h-full">
+        <div className="relative flex flex-col pt-1 h-full w-full">
           <Fab
             onClick={(e) => handleCopy(e)}
             className="!absolute top-2 right-2 z-10"
@@ -359,4 +374,4 @@ export function SendMessage({
       </div>
     </Box>
   );
-}
+});
