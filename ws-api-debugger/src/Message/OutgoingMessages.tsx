@@ -19,12 +19,12 @@ const OutgoingMessages: React.FC<OutgoingMessagesProps> = React.memo(
         if (paused) {
           setBuffer((prev) => {
             const next = [event, ...prev];
-            return next.length > 200 ? next.slice(0, 200) : next;
+            return next.length > 100 ? next.slice(0, 100) : next;
           });
         } else {
           setMessages((prev) => {
             const next = [event, ...prev];
-            return next.length > 200 ? next.slice(0, 200) : next;
+            return next.length > 100 ? next.slice(0, 100) : next;
           });
         }
       },
@@ -43,7 +43,7 @@ const OutgoingMessages: React.FC<OutgoingMessagesProps> = React.memo(
       if (!paused && buffer.length > 0) {
         setMessages((prev) => {
           const next = [...buffer, ...prev];
-          return next.length > 200 ? next.slice(0, 200) : next;
+          return next.length > 100 ? next.slice(0, 100) : next;
         });
         setBuffer([]);
       }

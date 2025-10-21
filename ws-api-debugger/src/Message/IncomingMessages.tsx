@@ -18,7 +18,7 @@ const IncomingMessages: React.FC<IncomingMessagesProps> = React.memo(
     const handler = useCallback((event: MessageEvent) => {
       setBuffer((prev) => {
         const next = [event, ...prev];
-        return next.length > 200 ? next.slice(0, 200) : next;
+        return next.length > 100 ? next.slice(0, 100) : next;
       });
     }, []);
 
@@ -34,7 +34,7 @@ const IncomingMessages: React.FC<IncomingMessagesProps> = React.memo(
       if (!paused && buffer.length > 0) {
         setMessages((prev) => {
           const next = [...buffer, ...prev];
-          return next.length > 200 ? next.slice(0, 200) : next;
+          return next.length > 100 ? next.slice(0, 100) : next;
         });
         setBuffer([]);
       }
