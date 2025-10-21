@@ -27,7 +27,8 @@ export const MessageHistory = ({
     clearMessages();
   };
 
-  const slicedMessages = messages.slice(0, maxMessages);
+  const slicedMessages =
+    messages.length > maxMessages ? messages.slice(0, maxMessages) : messages;
   const filteredMessages = !filter
     ? slicedMessages
     : slicedMessages.filter((message) => {
