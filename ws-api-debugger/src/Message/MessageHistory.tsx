@@ -20,7 +20,7 @@ export const MessageHistory = React.memo(
     isSubscribed = true,
   }: MessageHistoryProps) => {
     const [prettyPrint, setPrettyPrint] = useState<boolean>(true);
-    const [maxMessages, setMaxMessages] = useState<number>(20);
+    const [maxMessages, setMaxMessages] = useState<number>(50);
     const [filter, setFilter] = useState<string>("");
 
     // Custom clear function that clears parent messages
