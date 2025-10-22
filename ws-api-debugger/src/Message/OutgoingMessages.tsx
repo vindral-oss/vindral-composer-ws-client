@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { MessageHistory } from "./MessageHistory";
 
 interface OutgoingMessagesProps {
@@ -11,19 +11,24 @@ interface OutgoingMessagesProps {
 const OutgoingMessages: React.FC<OutgoingMessagesProps> = React.memo(
   ({ paused, setPaused, isSubscribed, registerHandler }) => {
     const [messages, setMessages] = useState<MessageEvent[]>([]);
-    const [, setBuffer] = useState<MessageEvent[]>([]);
+    const bufferRef = useRef<MessageEvent[]>([]);
 
     // Memoize the handler so its reference is stable
     const handler = useCallback(
       (event: MessageEvent) => {
+        const lightweightMessage = {
+          data: event.data,
+          timeStamp: event.timeStamp || Date.now(),
+          type: event.type,
+        } as MessageEvent;
+
         if (paused) {
-          setBuffer((prev) => {
-            const next = [event, ...prev];
-            return next.length > 300 ? next.slice(0, 300) : next;
-          });
+          const current = bufferRef.current;
+          const next = [lightweightMessage, ...current];
+          bufferRef.current = next.length > 300 ? next.slice(0, 300) : next;
         } else {
           setMessages((prev) => {
-            const next = [event, ...prev];
+            const next = [lightweightMessage, ...prev];
             return next.length > 300 ? next.slice(0, 300) : next;
           });
         }
@@ -41,16 +46,14 @@ const OutgoingMessages: React.FC<OutgoingMessagesProps> = React.memo(
     // When unpausing, merge buffer into messages
     useEffect(() => {
       if (!paused) {
-        setBuffer((currentBuffer) => {
-          if (currentBuffer.length > 0) {
-            setMessages((prev) => {
-              const next = [...currentBuffer, ...prev];
-              return next.length > 300 ? next.slice(0, 300) : next;
-            });
-            return [];
-          }
-          return currentBuffer;
-        });
+        const currentBuffer = bufferRef.current;
+        if (currentBuffer.length > 0) {
+          setMessages((prev) => {
+            const next = [...currentBuffer, ...prev];
+            return next.length > 300 ? next.slice(0, 300) : next;
+          });
+          bufferRef.current = [];
+        }
       }
     }, [paused]);
 

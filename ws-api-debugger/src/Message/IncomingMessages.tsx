@@ -17,13 +17,19 @@ const IncomingMessages: React.FC<IncomingMessagesProps> = React.memo(
     // Memoize handler with stable reference
     const handler = useCallback(
       (event: MessageEvent) => {
+        const lightweightMessage = {
+          data: event.data,
+          timeStamp: event.timeStamp || Date.now(),
+          type: event.type,
+        } as MessageEvent;
+
         if (paused) {
           const current = bufferRef.current;
-          const next = [event, ...current];
+          const next = [lightweightMessage, ...current];
           bufferRef.current = next.length > 300 ? next.slice(0, 300) : next;
         } else {
           setMessages((prev) => {
-            const next = [event, ...prev];
+            const next = [lightweightMessage, ...prev];
             return next.length > 300 ? next.slice(0, 300) : next;
           });
         }

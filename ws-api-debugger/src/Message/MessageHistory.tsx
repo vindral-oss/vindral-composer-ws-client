@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, memo } from "react";
 import { Box } from "@mui/material";
 import { MessageControl } from "./MessageControl";
 import { WebsocketMessage } from "./WebsocketMessage";
@@ -11,6 +11,39 @@ export interface MessageHistoryProps {
   isSubscribed?: boolean;
 }
 
+// Separate memoized component for message list rendering
+const MessageList = memo(
+  ({
+    filteredMessages,
+    prettyPrint,
+  }: {
+    filteredMessages: MessageEvent<string>[];
+    prettyPrint: boolean;
+  }) => (
+    <div className="flex-1 min-h-0 overflow-y-auto px-1">
+      {filteredMessages.map((message, idx) => {
+        // Use a simple, stable key without parsing JSON on every render
+        const key = `msg-${idx}-${message.data?.length || 0}`;
+
+        return (
+          <div
+            className="py-2 text-xs border-b border-gray-200 last:border-b-0"
+            key={key}
+          >
+            <WebsocketMessage message={message} prettyPrint={prettyPrint} />
+          </div>
+        );
+      })}
+    </div>
+  ),
+  (prevProps, nextProps) => {
+    return (
+      prevProps.filteredMessages === nextProps.filteredMessages &&
+      prevProps.prettyPrint === nextProps.prettyPrint
+    );
+  }
+);
+
 export const MessageHistory = React.memo(
   ({
     messages,
@@ -20,7 +53,7 @@ export const MessageHistory = React.memo(
     isSubscribed = true,
   }: MessageHistoryProps) => {
     const [prettyPrint, setPrettyPrint] = useState<boolean>(true);
-    const [maxMessages, setMaxMessages] = useState<number>(50);
+    const [maxMessages, setMaxMessages] = useState<number>(25);
     const [filter, setFilter] = useState<string>("");
 
     // Custom clear function that clears parent messages
@@ -28,14 +61,23 @@ export const MessageHistory = React.memo(
       clearMessages();
     }, [clearMessages]);
 
-    const slicedMessages =
-      messages.length > maxMessages ? messages.slice(0, maxMessages) : messages;
-    const filteredMessages = !filter
-      ? slicedMessages
-      : slicedMessages.filter((message) => {
-          const dataStr = message.data;
-          return dataStr.toLowerCase().includes(filter.toLowerCase());
-        });
+    // Memoize expensive filtering operations
+    const filteredMessages = useMemo(() => {
+      const slicedMessages =
+        messages.length > maxMessages
+          ? messages.slice(0, maxMessages)
+          : messages;
+
+      if (!filter) {
+        return slicedMessages;
+      }
+
+      const lowerFilter = filter.toLowerCase();
+      return slicedMessages.filter((message) => {
+        const dataStr = message.data;
+        return dataStr.toLowerCase().includes(lowerFilter);
+      });
+    }, [messages, maxMessages, filter]);
 
     const messageControl = useMemo(
       () => (
@@ -76,16 +118,10 @@ export const MessageHistory = React.memo(
             {messageControl}
           </div>
         </div>
-        <div className="flex-1 min-h-0 overflow-y-auto px-1">
-          {filteredMessages.map((message, idx) => (
-            <div
-              className="py-2 text-xs border-b border-gray-200 last:border-b-0"
-              key={idx}
-            >
-              <WebsocketMessage message={message} prettyPrint={prettyPrint} />
-            </div>
-          ))}
-        </div>
+        <MessageList
+          filteredMessages={filteredMessages}
+          prettyPrint={prettyPrint}
+        />
       </Box>
     );
   },
