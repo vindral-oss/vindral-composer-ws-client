@@ -32,7 +32,7 @@ export const WebsocketMessage = ({
   return (
     <Box
       component="section"
-      className={`text-wrap p-2 break-words ${
+      className={`text-wrap p-2 wrap-break-word ${
         type === "Error" ? "bg-red-500" : "bg-white"
       }`}
     >

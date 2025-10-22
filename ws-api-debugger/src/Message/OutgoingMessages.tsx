@@ -11,7 +11,7 @@ interface OutgoingMessagesProps {
 const OutgoingMessages: React.FC<OutgoingMessagesProps> = React.memo(
   ({ paused, setPaused, isSubscribed, registerHandler }) => {
     const [messages, setMessages] = useState<MessageEvent[]>([]);
-    const [buffer, setBuffer] = useState<MessageEvent[]>([]);
+    const [, setBuffer] = useState<MessageEvent[]>([]);
 
     // Memoize the handler so its reference is stable
     const handler = useCallback(
@@ -19,12 +19,12 @@ const OutgoingMessages: React.FC<OutgoingMessagesProps> = React.memo(
         if (paused) {
           setBuffer((prev) => {
             const next = [event, ...prev];
-            return next.length > 100 ? next.slice(0, 100) : next;
+            return next.length > 1000 ? next.slice(0, 1000) : next;
           });
         } else {
           setMessages((prev) => {
             const next = [event, ...prev];
-            return next.length > 100 ? next.slice(0, 100) : next;
+            return next.length > 1000 ? next.slice(0, 1000) : next;
           });
         }
       },
@@ -40,14 +40,19 @@ const OutgoingMessages: React.FC<OutgoingMessagesProps> = React.memo(
 
     // When unpausing, merge buffer into messages
     useEffect(() => {
-      if (!paused && buffer.length > 0) {
-        setMessages((prev) => {
-          const next = [...buffer, ...prev];
-          return next.length > 100 ? next.slice(0, 100) : next;
+      if (!paused) {
+        setBuffer((currentBuffer) => {
+          if (currentBuffer.length > 0) {
+            setMessages((prev) => {
+              const next = [...currentBuffer, ...prev];
+              return next.length > 1000 ? next.slice(0, 1000) : next;
+            });
+            return [];
+          }
+          return currentBuffer;
         });
-        setBuffer([]);
       }
-    }, [paused, buffer]);
+    }, [paused]);
 
     const clearMessages = useCallback(() => setMessages([]), []);
 

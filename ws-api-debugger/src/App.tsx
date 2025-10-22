@@ -1,9 +1,10 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 import useWebSocket from "react-use-websocket-lite";
 import { Connection } from "./Connection/Connection";
 import IncomingMessages from "./Message/IncomingMessages";
 import OutgoingMessages from "./Message/OutgoingMessages";
-import { SendMessage, type Message } from "./Message/SendMessage";
+import { type Message } from "./Message/SendMessage";
+import { SendColumn } from "./Message/SendColumn";
 import { SubscribeContainer, type Subscription } from "./Message/Subscribe";
 import { Card, CardContent } from "@mui/material";
 
@@ -219,6 +220,13 @@ export default function App() {
     []
   );
 
+  // Memoize audioStrips so SendMessage only rerenders when audioStrips change
+  const memoizedAudioStrips = useMemo(() => audioStrips || [], [audioStrips]);
+  const memoizedSendMessageFn = useCallback(
+    (message: Message) => handleSendMessage(message),
+    [handleSendMessage]
+  );
+
   return (
     <div className="h-screen flex flex-col">
       <Card className="p-4" elevation={2}>
@@ -242,18 +250,11 @@ export default function App() {
 
       <div className="flex-1 min-h-0 grid grid-cols-3 gap-0 p-6 overflow-hidden">
         {/* Column 1 - Send */}
-        <div className="flex flex-col h-full min-h-0 pr-6 border-r border-gray-300">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
-            Send
-          </h2>
-          <div className="flex-1 min-h-0">
-            <SendMessage
-              sendMessageFn={handleSendMessage}
-              audioStrips={audioStrips || []}
-              resetKey={sendResetKey}
-            />
-          </div>
-        </div>
+        <SendColumn
+          audioStrips={memoizedAudioStrips}
+          sendMessageFn={memoizedSendMessageFn}
+          resetKey={sendResetKey}
+        />
 
         {/* Column 2 - Incoming */}
         <IncomingMessages
