@@ -70,7 +70,7 @@ export const MessageControl: React.FC<MessageControlProps> = React.memo(
           onChange={(e) => {
             const raw = e.target.value;
             let val = raw === "" ? 1 : Number.parseInt(raw);
-            val = Math.max(1, Math.min(1000, val));
+            val = Math.max(1, Math.min(300, val));
             setMaxMessages(val);
           }}
           fullWidth
