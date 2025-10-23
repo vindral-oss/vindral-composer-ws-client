@@ -10,26 +10,23 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useState } from "react";
+import type { Subscription } from "../types";
 
-export interface Subscription {
-  Name: string;
-}
-
-export interface SubscribeProps {
-  isConnected: boolean;
+export interface SubscribeInputProps {
   activeSubscriptions: Subscription[];
+  isConnected: boolean;
   onSubscribe: (name: string) => void;
   onUnsubscribe: (name: string) => void;
 }
 
 const availableSubscriptions: Subscription[] = [{ Name: "AudioMixer" }];
 
-export const SubscribeContainer = ({
-  isConnected,
+export const SubscribeInput = ({
   activeSubscriptions,
+  isConnected,
   onSubscribe,
   onUnsubscribe,
-}: SubscribeProps) => {
+}: SubscribeInputProps) => {
   const [subscriptionName, setSubscriptionName] =
     useState<string>("AudioMixer");
 

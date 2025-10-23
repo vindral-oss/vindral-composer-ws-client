@@ -1,6 +1,6 @@
 import type { ReadyState } from "react-use-websocket-lite";
 
-export const ConnectionStatusIndicator = ({
+export const ConnectionStatus = ({
   readyState,
 }: {
   readyState: ReadyState;

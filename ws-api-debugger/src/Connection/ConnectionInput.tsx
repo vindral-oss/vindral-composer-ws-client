@@ -11,7 +11,7 @@ import {
 import { Wifi, WifiOff } from "@mui/icons-material";
 import { ConnectionStatus } from "./ConnectionStatus";
 
-export interface ConnectionProps {
+export interface ConnectionInputProps {
   readyState: ReadyState;
   currentSocketUrl: string;
   isConnected: boolean;
@@ -20,18 +20,17 @@ export interface ConnectionProps {
   onDisconnect: () => void;
 }
 
-export const Connection = ({
+export const ConnectionInput = ({
   readyState,
   currentSocketUrl,
   isConnected,
   urlError,
   onConnect,
   onDisconnect,
-}: ConnectionProps) => {
+}: ConnectionInputProps) => {
   const [inputSocketUrl, setInputSocketUrl] =
     useState<string>(currentSocketUrl);
 
-  // Sync input with current socket URL when it changes
   useEffect(() => {
     setInputSocketUrl(currentSocketUrl);
   }, [currentSocketUrl]);

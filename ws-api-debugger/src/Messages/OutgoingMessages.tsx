@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { MessageHistory } from "./MessageHistory";
+import { useConnectionContext } from "../context/useSpecializedContexts";
 
 interface OutgoingMessagesProps {
-  paused: boolean;
-  setPaused: (value: boolean) => void;
-  isSubscribed: boolean;
   registerHandler: (handler: (event: MessageEvent) => void) => void;
 }
 
 const OutgoingMessages: React.FC<OutgoingMessagesProps> = React.memo(
-  ({ paused, setPaused, isSubscribed, registerHandler }) => {
+  ({ registerHandler }) => {
+    const { isConnected } = useConnectionContext();
+    const [paused, setPaused] = useState(false);
+    const isSubscribed = isConnected;
     const [messages, setMessages] = useState<MessageEvent[]>([]);
     const bufferRef = useRef<MessageEvent[]>([]);
 
-    // Memoize the handler so its reference is stable
     const handler = useCallback(
       (event: MessageEvent) => {
         const lightweightMessage = {
@@ -25,11 +25,11 @@ const OutgoingMessages: React.FC<OutgoingMessagesProps> = React.memo(
         if (paused) {
           const current = bufferRef.current;
           const next = [lightweightMessage, ...current];
-          bufferRef.current = next.length > 300 ? next.slice(0, 300) : next;
+          bufferRef.current = next.length > 10000 ? next.slice(0, 10000) : next;
         } else {
           setMessages((prev) => {
             const next = [lightweightMessage, ...prev];
-            return next.length > 300 ? next.slice(0, 300) : next;
+            return next.length > 10000 ? next.slice(0, 10000) : next;
           });
         }
       },
@@ -43,14 +43,13 @@ const OutgoingMessages: React.FC<OutgoingMessagesProps> = React.memo(
       };
     }, [registerHandler, handler]);
 
-    // When unpausing, merge buffer into messages
     useEffect(() => {
       if (!paused) {
         const currentBuffer = bufferRef.current;
         if (currentBuffer.length > 0) {
           setMessages((prev) => {
             const next = [...currentBuffer, ...prev];
-            return next.length > 300 ? next.slice(0, 300) : next;
+            return next.length > 10000 ? next.slice(0, 10000) : next;
           });
           bufferRef.current = [];
         }
@@ -75,6 +74,9 @@ const OutgoingMessages: React.FC<OutgoingMessagesProps> = React.memo(
         </div>
       </div>
     );
+  },
+  (prevProps, nextProps) => {
+    return prevProps.registerHandler === nextProps.registerHandler;
   }
 );
 

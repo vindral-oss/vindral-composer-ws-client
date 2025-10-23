@@ -14,10 +14,11 @@ For Composer Runtime, edit the `settings.xml` to enable the WebSocket API:
 "EnableWebSockets": true,
 "WebSocketsHostName": "localhost",
 "WebSocketsPort": 8081,
-"WebSocketThrottledPropertiesFrequency": 100
+"WebSocketThrottledPropertiesFrequency": 0
+"WebSocketsMaxIncomingMessageQueueLength": 20
 ```
 
-Setting `WebSocketThrottledPropertiesFrequency` is optional and will control the latency for property changed events. For stability and performance, increase this number.
+Setting `WebSocketThrottledPropertiesFrequency` is optional and will control the latency for property changed events.
 
 For Composer Desktop, make the necessary changes in the `Settings` -> `Web API` menu.
 

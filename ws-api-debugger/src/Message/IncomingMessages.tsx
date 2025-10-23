@@ -1,15 +1,20 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { MessageHistory } from "./MessageHistory";
+import { useAppContext } from "../context/useAppContext";
+import { MessageHistory } from "../Messages/MessageHistory";
 
 interface IncomingMessagesProps {
-  paused: boolean;
-  setPaused: (value: boolean) => void;
-  isSubscribed: boolean;
   registerHandler: (handler: (event: MessageEvent) => void) => void;
 }
 
 const IncomingMessages: React.FC<IncomingMessagesProps> = React.memo(
-  ({ paused, setPaused, isSubscribed, registerHandler }) => {
+  ({ registerHandler }) => {
+    const {
+      pausedIncoming: paused,
+      setPausedIncoming: setPaused,
+      activeSubscriptions,
+      incrementMessageCount,
+    } = useAppContext();
+    const isSubscribed = activeSubscriptions.length > 0;
     const [messages, setMessages] = useState<MessageEvent[]>([]);
     const bufferRef = useRef<MessageEvent[]>([]);
 
@@ -17,6 +22,9 @@ const IncomingMessages: React.FC<IncomingMessagesProps> = React.memo(
     // Memoize handler with stable reference
     const handler = useCallback(
       (event: MessageEvent) => {
+        // Always call the message received callback for statistics
+        incrementMessageCount();
+
         const lightweightMessage = {
           data: event.data,
           timeStamp: event.timeStamp || Date.now(),
@@ -34,7 +42,7 @@ const IncomingMessages: React.FC<IncomingMessagesProps> = React.memo(
           });
         }
       },
-      [paused]
+      [paused, incrementMessageCount]
     );
 
     useEffect(() => {
@@ -78,13 +86,7 @@ const IncomingMessages: React.FC<IncomingMessagesProps> = React.memo(
     );
   },
   (prevProps, nextProps) => {
-    const propsEqual =
-      prevProps.paused === nextProps.paused &&
-      prevProps.isSubscribed === nextProps.isSubscribed &&
-      prevProps.setPaused === nextProps.setPaused &&
-      prevProps.registerHandler === nextProps.registerHandler;
-
-    return propsEqual;
+    return prevProps.registerHandler === nextProps.registerHandler;
   }
 );
 
