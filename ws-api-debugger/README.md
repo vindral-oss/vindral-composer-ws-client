@@ -22,7 +22,10 @@ Setting `WebSocketThrottledPropertiesFrequency` is optional and will control the
 
 For Composer Desktop, make the necessary changes in the `Settings` -> `Web API` menu.
 
-<img width="1382" height="893" alt="2025-10-13_1382x893_scrot" src="https://github.com/user-attachments/assets/03fcf71d-4b24-4f83-a353-fca1e61c8ffe" />
+<img width="837" height="549" alt="2025-10-23_837x549_scrot" src="https://github.com/user-attachments/assets/21d62290-1070-456a-8a44-87684507428b" />
+
+# Remote access
+Specify the external IP under `Hostname` to allow for remote connections to Composer's WebSocket server.
 
 # What this example application does
 
