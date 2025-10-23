@@ -25,7 +25,7 @@ For Composer Desktop, make the necessary changes in the `Settings` -> `Web API` 
 <img width="837" height="549" alt="2025-10-23_837x549_scrot" src="https://github.com/user-attachments/assets/21d62290-1070-456a-8a44-87684507428b" />
 
 # Remote access
-Specify the external IP under `Hostname` to allow for remote connections to Composer's WebSocket server.
+Specify the external IP (or any external hostname, other than localhost) under `Hostname` to allow for remote connections to Composer's WebSocket server.
 
 # What this example application does
 
