@@ -1,6 +1,11 @@
 import { useCallback } from "react";
-import { useConnectionContext } from "../context/useSpecializedContexts";
+import {
+  useConnectionContext,
+  useSubscriptionsContext,
+  useAudioContext,
+} from "../context/useSpecializedContexts";
 import { ConnectionInput } from "./ConnectionInput";
+import { getSendMessage } from "../utils/sendMessageUtils";
 
 export function ConnectionContainer() {
   const {
@@ -12,6 +17,10 @@ export function ConnectionContainer() {
     setUrlError,
     readyState,
   } = useConnectionContext();
+
+  const { activeSubscriptions, setActiveSubscriptions } =
+    useSubscriptionsContext();
+  const { setAudioStrips, incrementSendResetKey } = useAudioContext();
 
   const handleConnect = useCallback(
     (url: string) => {
@@ -56,9 +65,34 @@ export function ConnectionContainer() {
   );
 
   const handleDisconnect = useCallback(() => {
+    // First, unsubscribe from all active subscriptions
+    const sendMessage = getSendMessage();
+    if (sendMessage && activeSubscriptions.length > 0) {
+      activeSubscriptions.forEach((subscription) => {
+        const unsubscribeMessage = {
+          Type: "Unsubscribe",
+          Content: subscription.Name,
+        };
+        sendMessage(JSON.stringify(unsubscribeMessage));
+      });
+    }
+
+    // Clear all subscription-related state
+    setActiveSubscriptions([]);
+    setAudioStrips(undefined);
+    incrementSendResetKey();
+
+    // Finally disconnect
     setIsConnected(false);
     setUrlError("");
-  }, [setIsConnected, setUrlError]);
+  }, [
+    setIsConnected,
+    setUrlError,
+    activeSubscriptions,
+    setActiveSubscriptions,
+    setAudioStrips,
+    incrementSendResetKey,
+  ]);
 
   return (
     <ConnectionInput

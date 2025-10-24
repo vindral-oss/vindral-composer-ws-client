@@ -51,6 +51,14 @@ export function WebSocketManager() {
     useMessagesContext();
   const { setComposerInfo } = useComposerContext();
 
+  const cleanup = () => {
+    // Clear subscription state when connection is lost
+    setActiveSubscriptions([]);
+    setAudioStrips(undefined);
+    setPausedIncoming(false);
+    setPausedOutgoing(false);
+    incrementSendResetKey();
+  };
   const { sendMessage, readyState } = useWebSocket({
     url: isConnected ? socketUrl : null,
     connect: isConnected,
@@ -60,6 +68,7 @@ export function WebSocketManager() {
 
     onClose: () => {
       setIsConnected(false);
+      cleanup();
     },
 
     onError: (event) => {
@@ -68,6 +77,7 @@ export function WebSocketManager() {
         `Unable to connect to ${socketUrl}. Server not responding or unreachable.`
       );
       setIsConnected(false);
+      cleanup();
     },
 
     onMessage: (event) => {
