@@ -74,7 +74,7 @@ export function StatisticsContainer() {
 
   return (
     <Box className="min-w-fit">
-      <Typography variant="h6" component="h2" sx={{ fontWeight: 600 }}>
+      <Typography variant="h6" component="h2" sx={{ fontWeight: 600, mb: 1 }}>
         Statistics
       </Typography>
       <Box className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs">

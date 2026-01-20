@@ -101,12 +101,25 @@ export function WebSocketManager() {
         } catch (error) {
           console.error("Failed to parse Welcome message content:", error);
         }
+      } else if (parsedJson.Content === "LogFile subscription confirmed") {
+        if (!activeSubscriptions.some((sub) => sub.Name === "LogFile")) {
+          setActiveSubscriptions([
+            ...activeSubscriptions,
+            { Name: "LogFile" },
+          ]);
+        }
       } else if (parsedJson.Content === "unsubscribed from audio mixer") {
-        setActiveSubscriptions([]);
+        setActiveSubscriptions(
+          activeSubscriptions.filter((sub) => sub.Name !== "AudioMixer")
+        );
         setAudioStrips([]);
         setPausedIncoming(false);
         setPausedOutgoing(false);
         incrementSendResetKey();
+      } else if (parsedJson.Content === "unsubscribed from LogFile") {
+        setActiveSubscriptions(
+          activeSubscriptions.filter((sub) => sub.Name !== "LogFile")
+        );
       } else if (
         parsedJson.Content ===
         "Composer project cleared. Removing all subscribers."
@@ -123,15 +136,10 @@ export function WebSocketManager() {
         if (JSON.stringify(audioStrips) !== JSON.stringify(newStrips)) {
           setAudioStrips(newStrips);
         }
-        const subscriptionName = parsedJson.Content;
-        if (
-          !activeSubscriptions.some(
-            (sub: { Name: string }) => sub.Name === subscriptionName
-          )
-        ) {
+        if (!activeSubscriptions.some((sub) => sub.Name === "AudioMixer")) {
           setActiveSubscriptions([
             ...activeSubscriptions,
-            { Name: subscriptionName },
+            { Name: "AudioMixer" },
           ]);
         }
         incrementSendResetKey();

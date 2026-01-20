@@ -29,6 +29,7 @@ export function SendMessagesContainer({
       <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
         Send
       </h2>
+      <p className="mb-4">Subscribe to AudioMixer to send messages with its writeable properties.</p>
       <div className="flex-1 min-h-0">
         <SendMessage
           sendMessageFn={handleSendMessage}

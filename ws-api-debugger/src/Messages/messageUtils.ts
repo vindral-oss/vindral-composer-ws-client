@@ -41,16 +41,39 @@ export function processMessage(message: MessageEvent<string>): ProcessedMessage 
 
       let content: unknown = "";
       if (json?.Content) {
-        if (typeof json.Content === "string" && json.Content.includes("{")) {
-          let cleaned = json.Content.replaceAll(/\n/g, "");
-          cleaned = cleaned.replaceAll(/\\"/g, "");
+        if (typeof json.Content === "string") {
           try {
-            content = JSON.parse(cleaned);
+            // Try to parse Content as JSON (it's usually a JSON string)
+            content = JSON.parse(json.Content);
           } catch {
-            content = cleaned;
+            // If parsing fails, try the old cleanup method
+            let cleaned = json.Content.replaceAll(/\n/g, "");
+            cleaned = cleaned.replaceAll(/\\"/g, "");
+            try {
+              content = JSON.parse(cleaned);
+            } catch {
+              content = json.Content;
+            }
           }
         } else {
           content = json.Content;
+        }
+      }
+
+      if (json?.Type === "LogMessage" && content && typeof content === "object") {
+        const contentObj = content as Record<string, unknown>;
+        if (contentObj.Message && typeof contentObj.Message === "string") {
+          try {
+            // The Message field is JSON-stringified, parse it
+            const parsedMessage = JSON.parse(contentObj.Message);
+            // Replace the stringified Message with the parsed object
+            content = {
+              ...contentObj,
+              Message: parsedMessage
+            };
+          } catch {
+            // If parsing fails, keep as is
+          }
         }
       }
 
