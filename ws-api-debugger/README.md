@@ -33,12 +33,11 @@ Specify the external IP (or any external hostname, other than localhost) under `
 > This is just an early example of the initial feature set of the Composer WebSocket API. More features will be added later.
 
 This is a web-based companion app to showcase the features of Vindral composer's WebSocket API.
-It only supports the AudioMixer channel for now.
+It only supports the AudioMixer and LogFile channels for now.
 
 After subscribing; Composer will send a full list of available properties (read-only and writeable).
 
 # Sending messages
-
 After subscribing, the application will extract all available `Audio strips` from the running Composer project and filter out properties that have `Can Write: true`.
 
 To send a message;
